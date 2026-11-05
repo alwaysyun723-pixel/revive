@@ -154,13 +154,15 @@ export default function AdminDashboardView({
 
   const handleCreateNewClinic = () => {
     const newId = `clinic-${Date.now()}`;
-    const newSlug = `clinic-${Math.floor(1000 + Math.random() * 9000)}`;
+    const randomPin = String(Math.floor(1000 + Math.random() * 9000));
+    const newSlug = `clinic-${randomPin}`;
     const newClinic: ClinicConfig = {
       id: newId,
       slug: newSlug,
       clinicName: "신규 거래처 의원",
-      directorName: "원장",
-      pin: "1234",
+      directorName: "대표원장",
+      pin: randomPin,
+      isActive: true,
       customGreeting: db.repProfile.greetingDefault,
       heroHeadline: "신규 거래처 원장님을 위한 리바이브 핵심 브리핑",
       heroSubtext: db.siteContent.homeSection.defaultSubheadline,
@@ -185,7 +187,42 @@ export default function AdminDashboardView({
     const nextDb = { ...db, clinics: [newClinic, ...db.clinics] };
     setDb(nextDb);
     setEditingClinicId(newId);
-    persistDb(nextDb, "새 거래처 배포 페이지가 생성되었어요.");
+    persistDb(nextDb, `새 거래처 배포 페이지(/c/${newSlug}, PIN: ${randomPin})가 생성되었어요.`);
+  };
+
+  const handleDuplicateClinic = (source: ClinicConfig) => {
+    const newId = `clinic-${Date.now()}`;
+    const randomPin = String(Math.floor(1000 + Math.random() * 9000));
+    const newSlug = `${source.slug}-${randomPin}`;
+    const cloned: ClinicConfig = {
+      ...JSON.parse(JSON.stringify(source)),
+      id: newId,
+      slug: newSlug,
+      clinicName: `${source.clinicName} (복제본)`,
+      pin: randomPin,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const nextDb = { ...db, clinics: [cloned, ...db.clinics] };
+    setDb(nextDb);
+    setEditingClinicId(newId);
+    persistDb(nextDb, `${source.clinicName} 설정을 복제해 새 거래처 페이지를 만들었어요.`);
+  };
+
+  const handleToggleClinicActive = (clinic: ClinicConfig) => {
+    const nextActive = clinic.isActive === false ? true : false;
+    const nextClinics = db.clinics.map((c) =>
+      c.id === clinic.id ? { ...c, isActive: nextActive, updatedAt: new Date().toISOString() } : c
+    );
+    const nextDb = { ...db, clinics: nextClinics };
+    setDb(nextDb);
+    persistDb(
+      nextDb,
+      nextActive
+        ? `${clinic.clinicName} 전용 링크 접속 권한이 [허용 ON] 되었어요.`
+        : `${clinic.clinicName} 전용 링크 접속이 [차단 OFF] 되었어요.`
+    );
   };
 
   const handleDeleteClinic = (id: string) => {
@@ -200,14 +237,57 @@ export default function AdminDashboardView({
     persistDb(nextDb, "거래처 배포 페이지가 삭제되었어요.");
   };
 
+  const [publicBaseUrl, setPublicBaseUrl] = useState<string>(() => {
+    if (typeof window !== "undefined" && !window.location.origin.includes("localhost")) {
+      return window.location.origin;
+    }
+    return "https://3c0d1865f1f281.lhr.life";
+  });
+  const [shortUrlsMap, setShortUrlsMap] = useState<Record<string, string>>({});
+  const [shorteningId, setShorteningId] = useState<string | null>(null);
+
+  const getEffectiveBaseUrl = () => {
+    if (typeof window !== "undefined" && !window.location.origin.includes("localhost")) {
+      return window.location.origin;
+    }
+    if (publicBaseUrl.trim()) {
+      return publicBaseUrl.trim().replace(/\/+$/, "");
+    }
+    return "https://3c0d1865f1f281.lhr.life";
+  };
+
+  const handleGenerateShortUrl = async (clinic: ClinicConfig) => {
+    setShorteningId(clinic.id);
+    try {
+      const base = getEffectiveBaseUrl();
+      const targetUrl = `${base}/${clinic.slug}`;
+      const res = await fetch("/api/shorten", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetUrl }),
+      });
+      const data = await res.json();
+      if (data.ok && data.shortUrl) {
+        setShortUrlsMap((prev) => ({ ...prev, [clinic.id]: data.shortUrl }));
+        navigator.clipboard.writeText(data.shortUrl);
+        showToast(`타이핑용 초간단 주소(${data.shortUrl})가 생성 및 복사되었어요!`);
+      } else {
+        navigator.clipboard.writeText(targetUrl);
+        showToast(`링크(${targetUrl})가 복사되었어요!`);
+      }
+    } finally {
+      setShorteningId(null);
+    }
+  };
+
   const handleCopyClinicShareMessage = (clinic: ClinicConfig) => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-    const url = `${origin}/c/${clinic.slug}`;
+    const base = getEffectiveBaseUrl();
+    const url = shortUrlsMap[clinic.id] || `${base}/${clinic.slug}`;
     const shareText = `[Merz Aesthetics · Re:modeling 브리핑]\n\n${clinic.clinicName} ${clinic.directorName}님, 안녕하세요!\n멀츠 에스테틱스 코리아 ${db.repProfile.roleTitle} ${db.repProfile.name}입니다.\n\n${clinic.clinicName}을 위해 준비한 벨로테로 리바이브 강남·서초 시세 및 수익 계산기 페이지예요.\n\n▶ 전용 링크: ${url}\n▶ 비밀번호(PIN): ${clinic.pin}\n\n궁금하신 점이나 MEX 프로그램 신청은 페이지 내 버튼이나 카톡(ID: ${db.repProfile.kakaoId})으로 편하게 말씀해 주세요!`;
     navigator.clipboard.writeText(shareText);
     setCopiedId(clinic.id);
     setTimeout(() => setCopiedId(null), 2500);
-    showToast(`${clinic.clinicName} 카톡 초대 문구가 복사되었어요!`);
+    showToast(`${clinic.clinicName} 카톡 초대 문구(${url})가 복사되었어요!`);
   };
 
   const handleAddCustomPackageToClinic = () => {
@@ -338,19 +418,29 @@ export default function AdminDashboardView({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => persistDb(db, "현재 수정한 모든 내용이 홈페이지에 즉시 반영되었어요!")}
+              onClick={() => persistDb(db, "현재 수정한 모든 내용이 즉시 저장되었어요!")}
               disabled={saving}
               className="bg-[#00C471] hover:bg-[#00A862] text-white text-xs sm:text-sm font-extrabold px-5 py-2.5 rounded-2xl shadow-md flex items-center gap-1.5 transition active:scale-95"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? "저장 중..." : "💾 변경사항 즉시 저장"}</span>
             </button>
+            {editingClinic && (
+              <Link
+                href={`/c/${editingClinic.slug}`}
+                target="_blank"
+                className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-xs font-extrabold px-4 py-2.5 rounded-2xl flex items-center gap-1.5 transition shadow-sm"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>{editingClinic.clinicName} 배포 화면</span>
+              </Link>
+            )}
             <Link
               href="/"
-              className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-4 py-2.5 rounded-2xl flex items-center gap-1.5 transition"
+              className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3.5 py-2.5 rounded-2xl flex items-center gap-1.5 transition"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>고객 화면 보기</span>
+              <Lock className="w-3.5 h-3.5 text-[#FEE500]" />
+              <span>비공개 게이트웨이(/)</span>
             </Link>
           </div>
         </div>
@@ -362,12 +452,12 @@ export default function AdminDashboardView({
               {[
                 {
                   key: "visual",
-                  label: "🎨 1. 동일한 화면 보며 홈페이지 직접 수정 (Visual Editor)",
+                  label: `🎨 1. 거래처별 배포 페이지 선택 & 실시간 화면 편집 (${db.clinics.length}개 거래처)`,
                   icon: <FileEdit className="w-4 h-4" />,
                 },
                 {
                   key: "clinics",
-                  label: `🏥 2. 거래처별 배포 링크·단가 관리 (${db.clinics.length})`,
+                  label: `🏥 2. 다수 거래처 배포 링크·PIN·권한 상세 관리 (${db.clinics.length})`,
                   icon: <Building2 className="w-4 h-4" />,
                 },
                 {
@@ -412,16 +502,259 @@ export default function AdminDashboardView({
         </div>
       )}
 
-      {/* ==================== ADMIN TAB 1: 동일한 화면 보며 바로 수정 (VISUAL LIVE EDITOR) ==================== */}
+      {/* ==================== ADMIN TAB 1: 동일한 화면 보며 바로 수정 (VISUAL LIVE EDITOR + MULTI-CLINIC CONTROLLER) ==================== */}
       {activeAdminTab === "visual" && (
         <div className="flex-1 flex flex-col">
-          <div className="bg-gradient-to-r from-[#3182F6] to-[#1B64DA] text-white py-3 px-4 sm:px-6 text-xs sm:text-sm font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
+          {/* Multi-Clinic Selector & Security Control Bar */}
+          <div className="bg-white border-b border-blue-200 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3.5">
+              {/* Row 1: Select Clinic Distribution Page */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-extrabold text-[#1B64DA] bg-[#E8F3FF] px-3 py-1.5 rounded-xl">
+                    🏥 배포 페이지 선택 ({db.clinics.length}개 거래처)
+                  </span>
+                  {db.clinics.map((c) => {
+                    const isSelected = editingClinic?.id === c.id;
+                    const isActive = c.isActive !== false;
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => setEditingClinicId(c.id)}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 border transition ${
+                          isSelected
+                            ? "bg-[#3182F6] text-white border-[#3182F6] shadow-sm"
+                            : "bg-[#F8FAFC] text-[#191F28] border-slate-200 hover:bg-[#E8F3FF]/50"
+                        }`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            isActive ? "bg-[#00E68A]" : "bg-rose-500"
+                          }`}
+                          title={isActive ? "접속 허용중" : "접속 차단됨"}
+                        />
+                        <span>{c.clinicName}</span>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                            isSelected ? "bg-white/20 text-white" : "bg-slate-200 text-slate-700"
+                          }`}
+                        >
+                          PIN {c.pin}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {editingClinic && (
+                    <button
+                      type="button"
+                      onClick={() => handleDuplicateClinic(editingClinic)}
+                      className="bg-[#F0F6FF] hover:bg-[#CFE2FF] text-[#1B64DA] text-xs font-extrabold px-3 py-2 rounded-xl flex items-center gap-1 transition"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>현재 거래처 복제</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleCreateNewClinic}
+                    className="bg-[#191F28] hover:bg-[#333D4B] text-white text-xs font-extrabold px-3.5 py-2 rounded-xl flex items-center gap-1 transition shadow-sm"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-[#FEE500]" />
+                    <span>+ 신규 거래처 페이지 추가</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Row 2: Selected Clinic Quick Settings (Name, Director, URL Slug, PIN, Access ON/OFF, Share Link) */}
+              {editingClinic && (
+                <div className="bg-[#F8FAFC] border border-blue-200/80 rounded-2xl p-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 flex-1">
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-slate-500 mb-0.5">
+                        거래처 병원명
+                      </label>
+                      <input
+                        type="text"
+                        value={editingClinic.clinicName}
+                        onChange={(e) =>
+                          handleUpdateClinic({ ...editingClinic, clinicName: e.target.value })
+                        }
+                        className="w-full text-xs font-extrabold bg-white border border-slate-300 rounded-xl px-2.5 py-1.5"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-slate-500 mb-0.5">
+                        원장님 성함/호칭
+                      </label>
+                      <input
+                        type="text"
+                        value={editingClinic.directorName}
+                        onChange={(e) =>
+                          handleUpdateClinic({ ...editingClinic, directorName: e.target.value })
+                        }
+                        className="w-full text-xs font-extrabold bg-white border border-slate-300 rounded-xl px-2.5 py-1.5"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-slate-500 mb-0.5">
+                        전용 공유 URL (/c/코드)
+                      </label>
+                      <input
+                        type="text"
+                        value={editingClinic.slug}
+                        onChange={(e) =>
+                          handleUpdateClinic({
+                            ...editingClinic,
+                            slug: e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""),
+                          })
+                        }
+                        className="w-full text-xs font-mono font-bold bg-white border border-slate-300 rounded-xl px-2.5 py-1.5"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-[#1B64DA] mb-0.5">
+                        🔒 접속 보안 PIN 번호
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={8}
+                        value={editingClinic.pin}
+                        onChange={(e) =>
+                          handleUpdateClinic({ ...editingClinic, pin: e.target.value })
+                        }
+                        className="w-full text-xs font-extrabold text-[#1B64DA] bg-[#E8F3FF] border border-[#90C2FF] rounded-xl px-2.5 py-1.5"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleClinicActive(editingClinic)}
+                      className={`text-xs font-extrabold px-3.5 py-2 rounded-xl border transition flex items-center gap-1.5 ${
+                        editingClinic.isActive !== false
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
+                          : "bg-rose-50 text-rose-600 border-rose-300 hover:bg-rose-100"
+                      }`}
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>
+                        {editingClinic.isActive !== false
+                          ? "🟢 접속 허용중 (클릭 시 차단)"
+                          : "🔴 접속 차단됨 (클릭 시 허용)"}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleGenerateShortUrl(editingClinic)}
+                      disabled={shorteningId === editingClinic.id}
+                      className="bg-[#6741D9] hover:bg-[#5F3DC4] text-white text-xs font-extrabold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-[#FEE500]" />
+                      <span>
+                        {shorteningId === editingClinic.id
+                          ? "단축 주소 생성 중..."
+                          : shortUrlsMap[editingClinic.id]
+                          ? `단축 URL: ${shortUrlsMap[editingClinic.id]}`
+                          : "⚡ 타이핑용 초간단 URL 생성"}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCopyClinicShareMessage(editingClinic)}
+                      className="bg-[#FEE500] hover:bg-[#FDD800] text-[#191F28] text-xs font-extrabold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition"
+                    >
+                      {copiedId === editingClinic.id ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-700" />
+                          <span>초대 링크+PIN 복사됨!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>카톡 공유(URL+PIN) 복사</span>
+                        </>
+                      )}
+                    </button>
+
+                    <Link
+                      href={`/${editingClinic.slug}`}
+                      target="_blank"
+                      className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-xs font-extrabold px-3.5 py-2 rounded-xl flex items-center gap-1 transition shadow-sm"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>전용 페이지 열기</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Row 3: Corporate Security / Network Compatibility Domain Switcher */}
+              <div className="bg-[#E8F3FF]/60 border border-[#B6D8FF] rounded-2xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold text-[#1B64DA]">
+                    🌐 접속 환경별 주소 모드:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPublicBaseUrl("https://3c0d1865f1f281.lhr.life")}
+                    className={`px-3 py-1 rounded-lg font-extrabold transition ${
+                      publicBaseUrl.includes("lhr.life")
+                        ? "bg-[#3182F6] text-white"
+                        : "bg-white text-[#4E5968] border border-blue-200"
+                    }`}
+                  >
+                    1) 회사 보안 노트북·아이폰 공용 (표준 TLS: 3c0d1865f1f281.lhr.life)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPublicBaseUrl(
+                        "https://targets-cottages-consideration-ing.trycloudflare.com"
+                      )
+                    }
+                    className={`px-3 py-1 rounded-lg font-extrabold transition ${
+                      publicBaseUrl.includes("trycloudflare")
+                        ? "bg-[#3182F6] text-white"
+                        : "bg-white text-[#4E5968] border border-blue-200"
+                    }`}
+                  >
+                    2) 아이폰·외부 LTE 보조 링크 (Cloudflare)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPublicBaseUrl("http://192.168.45.205:3000")}
+                    className={`px-3 py-1 rounded-lg font-extrabold transition ${
+                      publicBaseUrl.includes("192.168.")
+                        ? "bg-[#3182F6] text-white"
+                        : "bg-white text-[#4E5968] border border-blue-200"
+                    }`}
+                  >
+                    3) 동일 와이파이 초단축 숫자 주소 (192.168.45.205:3000)
+                  </button>
+                </div>
+                {editingClinic && (
+                  <span className="font-mono font-bold text-[#1B64DA]">
+                    현재 단축 경로: {getEffectiveBaseUrl()}/{editingClinic.slug} (또는 /1 ~ /5)
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-[#3182F6] to-[#1B64DA] text-white py-2.5 px-4 sm:px-6 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
             <div className="flex items-center gap-2">
               <span className="bg-[#FEE500] text-[#191F28] font-extrabold px-2.5 py-0.5 rounded-full text-xs">
-                실시간 화면 편집 모드
+                실시간 화면 편집 모드 · {editingClinic?.clinicName}
               </span>
               <span>
-                아래 실제 홈페이지 화면에서 <strong>메뉴 탭 이름(HOME, About Revive 등)</strong>, <strong>용량별 시술 프로토콜(1cc~4cc)</strong>, <strong>명함</strong>, <strong>액티비티 4종</strong> 등 모든 글자를 클릭해 바로 수정하고 우측 상단 <strong>[💾 변경사항 즉시 저장]</strong>을 눌러주세요!
+                현재 선택된 <strong>[{editingClinic?.clinicName}]</strong>의 맞춤 타이틀·추천 패키지·시뮬레이터 초기값 및 전체 공통 콘텐츠를 아래 동일한 화면에서 바로 수정한 뒤 우측 상단 <strong>[💾 변경사항 즉시 저장]</strong>을 눌러주세요!
               </span>
             </div>
           </div>
@@ -434,6 +767,7 @@ export default function AdminDashboardView({
             isPreviewMode={false}
             editable={true}
             onUpdateDb={(nextDb) => setDb(nextDb)}
+            onUpdateClinic={handleUpdateClinic}
             onRefreshAcademic={handleRefreshLogsAndData}
           />
         </div>
@@ -477,6 +811,12 @@ export default function AdminDashboardView({
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <div className="flex items-center gap-1.5">
+                              <span
+                                className={`w-2.5 h-2.5 rounded-full ${
+                                  c.isActive !== false ? "bg-emerald-500" : "bg-rose-500"
+                                }`}
+                                title={c.isActive !== false ? "접속 허용중" : "접속 차단됨"}
+                              />
                               <span className="font-extrabold text-sm text-[#191F28]">
                                 {c.clinicName}
                               </span>
@@ -484,7 +824,7 @@ export default function AdminDashboardView({
                                 ({c.directorName}님)
                               </span>
                             </div>
-                            <div className="text-[11px] text-[#4E5968] mt-0.5 flex items-center gap-2">
+                            <div className="text-[11px] text-[#4E5968] mt-1 flex flex-wrap items-center gap-2">
                               <span>
                                 URL: <code>/c/{c.slug}</code>
                               </span>
@@ -492,19 +832,47 @@ export default function AdminDashboardView({
                               <span className="inline-flex items-center gap-0.5 font-extrabold text-[#1B64DA]">
                                 <Lock className="w-3 h-3" /> PIN: {c.pin}
                               </span>
+                              <span>·</span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleClinicActive(c);
+                                }}
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                  c.isActive !== false
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : "bg-rose-100 text-rose-600"
+                                }`}
+                              >
+                                {c.isActive !== false ? "접속 허용 ON" : "접속 차단 OFF"}
+                              </button>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteClinic(c.id);
-                            }}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg"
-                            title="삭제"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDuplicateClinic(c);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-[#3182F6] rounded-lg"
+                              title="이 거래처 복제"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClinic(c.id);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg"
+                              title="삭제"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-2 pt-2 border-t border-slate-200/80">

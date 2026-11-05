@@ -99,7 +99,8 @@ export interface ClinicConfig {
   slug: string;
   clinicName: string;
   directorName: string;
-  pin: string; // 4자리 PIN
+  pin: string; // 4~6자리 보안 PIN 번호
+  isActive?: boolean; // 접속 권한 허용 여부 (true: 공유받은 상대 접속 가능, false: 접속 차단)
   customGreeting: string;
   heroHeadline: string;
   heroSubtext: string;
@@ -113,6 +114,7 @@ export interface ClinicConfig {
   simulatorDefaults: SimulatorDefaults;
   selectedEventIds: string[]; // 노출할 강남/서초 병원 ID 목록
   customPackages: PackageTemplate[]; // 해당 병원 맞춤 추천 패키지/가격표
+  customSiteContent?: SiteContentCMS; // 거래처별 개별 문구/프로토콜 오버라이드 (선택)
   createdAt: string;
   updatedAt: string;
 }

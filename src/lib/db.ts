@@ -1,33 +1,63 @@
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { RemodelingDatabase, AcademicFileItem } from "@/types/remodeling";
 import { defaultDatabase } from "@/data/defaultData";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DB_FILE = path.join(DATA_DIR, "db.json");
+const LOCAL_DATA_DIR = path.join(process.cwd(), "data");
+const TMP_DATA_DIR = path.join(os.tmpdir(), "re_modeling_data");
 const ACADEMIC_DIR = path.join(process.cwd(), "public", "academic-docs");
 
-export function ensureDirectories() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+function getWritableDataDir(): string {
+  try {
+    if (!fs.existsSync(LOCAL_DATA_DIR)) {
+      fs.mkdirSync(LOCAL_DATA_DIR, { recursive: true });
+    }
+    fs.accessSync(LOCAL_DATA_DIR, fs.constants.W_OK);
+    return LOCAL_DATA_DIR;
+  } catch {
+    if (!fs.existsSync(TMP_DATA_DIR)) {
+      fs.mkdirSync(TMP_DATA_DIR, { recursive: true });
+    }
+    return TMP_DATA_DIR;
   }
-  if (!fs.existsSync(ACADEMIC_DIR)) {
-    fs.mkdirSync(ACADEMIC_DIR, { recursive: true });
+}
+
+export function ensureDirectories() {
+  getWritableDataDir();
+  try {
+    if (!fs.existsSync(ACADEMIC_DIR)) {
+      fs.mkdirSync(ACADEMIC_DIR, { recursive: true });
+    }
+  } catch {
+    // Ignore on read-only serverless file systems
   }
 }
 
 export function getDatabase(): RemodelingDatabase {
-  ensureDirectories();
-  if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(defaultDatabase, null, 2), "utf-8");
+  const dataDir = getWritableDataDir();
+  const dbFile = path.join(dataDir, "db.json");
+  if (!fs.existsSync(dbFile)) {
+    try {
+      fs.writeFileSync(dbFile, JSON.stringify(defaultDatabase, null, 2), "utf-8");
+    } catch {
+      // Ignore write error if any
+    }
     return defaultDatabase;
   }
   try {
-    const raw = fs.readFileSync(DB_FILE, "utf-8");
+    const raw = fs.readFileSync(dbFile, "utf-8");
     const parsed = JSON.parse(raw) as Partial<RemodelingDatabase>;
+    const existingClinics = parsed.clinics || [];
+    const existingSlugs = new Set(existingClinics.map((c) => c.slug));
+    const mergedClinics = [
+      ...defaultDatabase.clinics.filter((dc) => !existingSlugs.has(dc.slug)),
+      ...existingClinics,
+    ];
     return {
       ...defaultDatabase,
       ...parsed,
+      clinics: mergedClinics,
       repProfile: { ...defaultDatabase.repProfile, ...(parsed.repProfile || {}) },
       siteContent: {
         ...defaultDatabase.siteContent,
@@ -64,8 +94,13 @@ export function getDatabase(): RemodelingDatabase {
 }
 
 export function saveDatabase(db: RemodelingDatabase): RemodelingDatabase {
-  ensureDirectories();
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf-8");
+  const dataDir = getWritableDataDir();
+  const dbFile = path.join(dataDir, "db.json");
+  try {
+    fs.writeFileSync(dbFile, JSON.stringify(db, null, 2), "utf-8");
+  } catch {
+    // Ignore if read-only
+  }
   return db;
 }
 

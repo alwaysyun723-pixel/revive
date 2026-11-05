@@ -2,6 +2,7 @@ import React from "react";
 import { getDatabase, getAcademicFilesList } from "@/lib/db";
 import ClientPortalView from "@/components/ClientPortalView";
 import Link from "next/link";
+import { Lock, ShieldAlert, Phone } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -14,26 +15,73 @@ interface PageProps {
 export default function ClinicDistributionPage({ params }: PageProps) {
   const db = getDatabase();
   const academicFiles = getAcademicFilesList();
-  const decodedSlug = decodeURIComponent(params.slug);
-  const clinic = db.clinics.find((c) => c.slug === decodedSlug);
+  const decodedSlug = decodeURIComponent(params.slug).toLowerCase();
+  const aliasMap: Record<string, string> = {
+    "1": "toxnfill-gn",
+    tf: "toxnfill-gn",
+    "2": "rejuel-gn",
+    rj: "rejuel-gn",
+    "3": "drevers-gn",
+    de: "drevers-gn",
+    "4": "theia-gn",
+    th: "theia-gn",
+    "5": "cheongdam-ace",
+    cd: "cheongdam-ace",
+  };
+  const mappedSlug = aliasMap[decodedSlug] || decodedSlug;
+  const clinic = db.clinics.find(
+    (c) => c.slug.toLowerCase() === mappedSlug || c.slug.toLowerCase() === decodedSlug
+  );
 
   if (!clinic) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-merz-gold text-slate-900 font-extrabold flex items-center justify-center text-lg">
-          Re:
+      <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1B3A6B] to-[#3182F6] text-white flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-full max-w-md bg-white text-[#191F28] rounded-[32px] p-8 shadow-2xl space-y-5">
+          <div className="w-14 h-14 rounded-3xl bg-rose-50 text-rose-500 flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-7 h-7" />
+          </div>
+          <h1 className="text-xl font-extrabold">유효하지 않은 전용 링크입니다</h1>
+          <p className="text-xs text-[#4E5968] leading-relaxed">
+            요청하신 주소(<code>/c/{decodedSlug}</code>)는 등록되지 않았거나 변경된 링크입니다.
+            <br />
+            담당자(<strong>{db.repProfile.roleTitle} {db.repProfile.name}: {db.repProfile.phone}</strong>)에게 전용 링크를 문의해 주세요.
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white text-sm font-extrabold px-5 py-3.5 rounded-2xl transition"
+          >
+            PIN 번호 입력 게이트로 이동
+          </Link>
         </div>
-        <h1 className="text-xl font-extrabold">요청하신 거래처 브리핑 페이지를 찾을 수 없습니다.</h1>
-        <p className="text-xs text-slate-400 max-w-md">
-          링크 주소(<code>/c/{decodedSlug}</code>)가 정확한지 확인해 주시거나 담당자({db.repProfile.roleTitle}{" "}
-          {db.repProfile.name}: {db.repProfile.phone})에게 문의해 주세요.
-        </p>
-        <Link
-          href="/"
-          className="bg-merz-teal text-white text-xs font-bold px-4 py-2.5 rounded-xl"
-        >
-          기본 브리핑 페이지로 이동
-        </Link>
+      </div>
+    );
+  }
+
+  // If Admin disabled access for this clinic (isActive === false)
+  if (clinic.isActive === false) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1B3A6B] to-[#3182F6] text-white flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-full max-w-md bg-white text-[#191F28] rounded-[32px] p-8 shadow-2xl space-y-5">
+          <div className="w-14 h-14 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+            <Lock className="w-7 h-7" />
+          </div>
+          <span className="inline-block text-xs font-extrabold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">
+            {clinic.clinicName} 전용 링크
+          </span>
+          <h1 className="text-xl font-extrabold">접속 권한이 일시 중지된 페이지입니다</h1>
+          <p className="text-xs text-[#4E5968] leading-relaxed">
+            본 전용 링크는 담당자에 의해 열람 권한이 비활성화되었거나 열람 기간이 만료되었습니다.
+            <br />
+            다시 열람을 원하시면 담당자(<strong>{db.repProfile.roleTitle} {db.repProfile.name}</strong>)에게 연락해 주세요.
+          </p>
+          <a
+            href={`tel:${db.repProfile.phone}`}
+            className="inline-flex items-center justify-center gap-2 w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white text-sm font-extrabold px-5 py-3.5 rounded-2xl transition"
+          >
+            <Phone className="w-4 h-4" />
+            <span>{db.repProfile.roleTitle} {db.repProfile.name}에게 전화하기 ({db.repProfile.phone})</span>
+          </a>
+        </div>
       </div>
     );
   }

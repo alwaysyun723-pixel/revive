@@ -39,6 +39,7 @@ interface Props {
   isPreviewMode?: boolean;
   editable?: boolean;
   onUpdateDb?: (nextDb: RemodelingDatabase) => void;
+  onUpdateClinic?: (updatedClinic: ClinicConfig) => void;
   onRefreshAcademic?: () => void;
 }
 
@@ -104,11 +105,28 @@ export default function ClientPortalView({
   isPreviewMode = false,
   editable = false,
   onUpdateDb,
+  onUpdateClinic,
   onRefreshAcademic,
 }: Props) {
   const [isUnlocked, setIsUnlocked] = useState<boolean>(!requirePin || editable);
   const [pinInput, setPinInput] = useState<string>("");
   const [pinError, setPinError] = useState<string>("");
+
+  // Check sessionStorage on mount if requirePin is enabled
+  useEffect(() => {
+    if (!requirePin || editable) {
+      setIsUnlocked(true);
+      return;
+    }
+    if (typeof window !== "undefined") {
+      const savedPin = sessionStorage.getItem(`remodeling_unlocked_${clinic.slug}`);
+      if (savedPin && savedPin === clinic.pin.trim()) {
+        setIsUnlocked(true);
+      } else {
+        setIsUnlocked(false);
+      }
+    }
+  }, [requirePin, editable, clinic.slug, clinic.pin]);
 
   const getInitialTab = (): TabKey => {
     if (clinic.visibleTabs.home) return "home";
@@ -240,11 +258,22 @@ export default function ClientPortalView({
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (pinInput.trim() === clinic.pin.trim()) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(`remodeling_unlocked_${clinic.slug}`, clinic.pin.trim());
+      }
       setIsUnlocked(true);
       setPinError("");
     } else {
-      setPinError("비밀번호가 맞지 않아요. 다시 확인해 주세요.");
+      setPinError("보안 PIN 번호가 일치하지 않습니다. 전달받으신 번호를 다시 확인해 주세요.");
     }
+  };
+
+  const handleLockScreen = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem(`remodeling_unlocked_${clinic.slug}`);
+    }
+    setPinInput("");
+    setIsUnlocked(false);
   };
 
   const handleActivitySubmit = async (e: React.FormEvent) => {
@@ -415,6 +444,18 @@ export default function ClientPortalView({
             </div>
 
             <div className="flex items-center gap-2">
+              {!editable && requirePin && (
+                <button
+                  type="button"
+                  onClick={handleLockScreen}
+                  className="text-xs bg-slate-100 hover:bg-slate-200 text-[#4E5968] font-bold px-3 py-2 rounded-2xl flex items-center gap-1 transition"
+                  title="화면 다시 잠그기 (PIN 번호 보호)"
+                >
+                  <Lock className="w-3.5 h-3.5 text-[#3182F6]" />
+                  <span>잠금</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={handleOpenKakaoConnect}
@@ -423,16 +464,6 @@ export default function ClientPortalView({
                 <MessageCircle className="w-3.5 h-3.5 fill-[#191F28]" />
                 <span>{repProfile.name} 카톡</span>
               </button>
-
-              {isPreviewMode && !editable && (
-                <Link
-                  href="/admin"
-                  className="text-xs bg-[#191F28] hover:bg-[#333D4B] text-white font-bold px-3.5 py-2 rounded-2xl flex items-center gap-1.5 transition"
-                >
-                  <Settings className="w-3.5 h-3.5 text-[#FEE500]" />
-                  <span>관리자 · 화면 직접 수정</span>
-                </Link>
-              )}
             </div>
           </div>
 
@@ -500,7 +531,7 @@ export default function ClientPortalView({
                 {editable ? (
                   <div className="space-y-3 bg-white/10 p-4 rounded-2xl border border-white/25">
                     <span className="text-[11px] font-bold text-[#FEE500] block">
-                      ✏️ HOME 상단 배너 기본 문구 수정
+                      ✏️ [{clinic.clinicName}] 상단 배너 맞춤 타이틀 & 원장님 인사말 직접 수정
                     </span>
                     <input
                       type="text"
@@ -513,31 +544,47 @@ export default function ClientPortalView({
                           },
                         })
                       }
+                      placeholder="상단 배지 문구"
                       className="text-xs font-bold bg-white/20 text-white rounded-xl px-3 py-1.5 w-full"
                     />
                     <input
                       type="text"
-                      value={siteContent.homeSection.defaultHeadline}
-                      onChange={(e) =>
-                        updateSiteContent({
-                          homeSection: {
-                            ...siteContent.homeSection,
-                            defaultHeadline: e.target.value,
-                          },
-                        })
-                      }
+                      value={clinic.heroHeadline || siteContent.homeSection.defaultHeadline}
+                      onChange={(e) => {
+                        if (onUpdateClinic) {
+                          onUpdateClinic({
+                            ...clinic,
+                            heroHeadline: e.target.value,
+                          });
+                        } else {
+                          updateSiteContent({
+                            homeSection: {
+                              ...siteContent.homeSection,
+                              defaultHeadline: e.target.value,
+                            },
+                          });
+                        }
+                      }}
+                      placeholder="이 거래처 원장님께 보여줄 환영 메인 타이틀"
                       className="text-lg font-extrabold bg-white/20 text-white rounded-xl px-3 py-2 w-full"
                     />
                     <textarea
                       rows={2}
-                      value={repProfile.greetingDefault}
-                      onChange={(e) =>
-                        onUpdateDb &&
-                        onUpdateDb({
-                          ...db,
-                          repProfile: { ...repProfile, greetingDefault: e.target.value },
-                        })
-                      }
+                      value={clinic.customGreeting || repProfile.greetingDefault}
+                      onChange={(e) => {
+                        if (onUpdateClinic) {
+                          onUpdateClinic({
+                            ...clinic,
+                            customGreeting: e.target.value,
+                          });
+                        } else if (onUpdateDb) {
+                          onUpdateDb({
+                            ...db,
+                            repProfile: { ...repProfile, greetingDefault: e.target.value },
+                          });
+                        }
+                      }}
+                      placeholder="이 거래처 원장님께 전하는 맞춤 인사말"
                       className="text-xs bg-white/20 text-white rounded-xl p-3 w-full"
                     />
                   </div>
@@ -1965,55 +2012,208 @@ export default function ClientPortalView({
         {activeTab === "packages" && (
           <div className="space-y-6 animate-fade-in">
             {/* 1. 우리 병원 맞춤 추천 패키지 (Vibrant Blue Gradient Box) */}
-            {clinic.customPackages && clinic.customPackages.length > 0 && (
+            {(editable || (clinic.customPackages && clinic.customPackages.length > 0)) && (
               <div className="rounded-[28px] bg-gradient-to-br from-[#1B64DA] via-[#3182F6] to-[#191F28] text-white p-7 sm:p-8 shadow-lg space-y-5">
-                <div>
-                  <span className="text-xs font-bold text-[#FEE500] bg-white/15 px-3 py-1 rounded-full">
-                    ⭐ {clinic.clinicName} 맞춤 제안
-                  </span>
-                  <h2 className="text-2xl font-extrabold mt-2">
-                    {clinic.directorName}님 병원에 추천하는 패키지예요
-                  </h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-xs font-bold text-[#FEE500] bg-white/15 px-3 py-1 rounded-full">
+                      ⭐ {clinic.clinicName} 맞춤 제안
+                    </span>
+                    <h2 className="text-2xl font-extrabold mt-2">
+                      {clinic.directorName}님 병원에 추천하는 패키지예요
+                    </h2>
+                  </div>
+
+                  {editable && onUpdateClinic && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onUpdateClinic({
+                          ...clinic,
+                          customPackages: [
+                            ...(clinic.customPackages || []),
+                            {
+                              id: `cust-pkg-${Date.now()}`,
+                              category: "custom",
+                              name: `${clinic.clinicName} 시그니처 리바이브 2cc 패키지`,
+                              tagline: `${clinic.clinicName} 맞춤 제안`,
+                              composition: ["리바이브 2cc", "LDM 12분"],
+                              targetConcern: "속건조·수분광채 개선 고객",
+                              recommendedPrice: 690000,
+                              regularPrice: 890000,
+                              synergyPoint:
+                                "1회 시술당 높은 만족도와 순수익을 동시에 확보하는 구성이에요.",
+                              badge: `⭐ ${clinic.clinicName} 맞춤`,
+                            },
+                          ],
+                        })
+                      }
+                      className="bg-[#FEE500] hover:bg-[#FDD800] text-[#191F28] text-xs font-extrabold px-4 py-2.5 rounded-2xl flex items-center gap-1.5 shadow-sm shrink-0"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>+ {clinic.clinicName} 전용 추천 패키지 추가</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {clinic.customPackages.map((pkg) => (
+                  {(clinic.customPackages || []).map((pkg, pkgIdx) => (
                     <div
                       key={pkg.id}
                       className="bg-white text-[#191F28] rounded-3xl p-6 flex flex-col justify-between space-y-4 shadow-md"
                     >
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-extrabold text-[#3182F6] bg-[#E8F3FF] px-3 py-1 rounded-full">
-                            {pkg.badge}
-                          </span>
-                          <div className="text-right">
-                            <span className="text-xs text-[#8B95A1] line-through mr-1.5">
-                              {(pkg.regularPrice / 10000).toFixed(0)}만원
-                            </span>
-                            <span className="text-xl font-extrabold text-[#3182F6]">
-                              {(pkg.recommendedPrice / 10000).toFixed(0)}만원
-                            </span>
-                          </div>
-                        </div>
-
-                        <h3 className="text-lg font-extrabold text-[#191F28]">{pkg.name}</h3>
-
-                        <div className="flex flex-wrap gap-1.5">
-                          {pkg.composition.map((comp, i) => (
-                            <span
-                              key={i}
-                              className="text-xs font-bold bg-[#F0F6FF] text-[#1B64DA] border border-[#CFE2FF] px-3 py-1 rounded-xl"
+                      {editable && onUpdateClinic ? (
+                        <div className="space-y-2.5 text-xs">
+                          <div className="flex items-center justify-between gap-2">
+                            <input
+                              type="text"
+                              value={pkg.badge}
+                              onChange={(e) => {
+                                const next = [...(clinic.customPackages || [])];
+                                next[pkgIdx] = { ...pkg, badge: e.target.value };
+                                onUpdateClinic({ ...clinic, customPackages: next });
+                              }}
+                              placeholder="배지 문구"
+                              className="font-extrabold text-[#3182F6] bg-[#E8F3FF] border border-blue-300 rounded-xl px-2.5 py-1 w-full"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = (clinic.customPackages || []).filter(
+                                  (_, i) => i !== pkgIdx
+                                );
+                                onUpdateClinic({ ...clinic, customPackages: next });
+                              }}
+                              className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-xl"
+                              title="이 맞춤 패키지 삭제"
                             >
-                              + {comp}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
 
-                      <p className="text-xs text-[#4E5968] pt-3 border-t border-[#F2F4F6] font-medium">
-                        💡 {pkg.synergyPoint}
-                      </p>
+                          <input
+                            type="text"
+                            value={pkg.name}
+                            onChange={(e) => {
+                              const next = [...(clinic.customPackages || [])];
+                              next[pkgIdx] = { ...pkg, name: e.target.value };
+                              onUpdateClinic({ ...clinic, customPackages: next });
+                            }}
+                            placeholder="맞춤 패키지명"
+                            className="font-extrabold text-sm bg-slate-50 border border-blue-300 rounded-xl px-3 py-1.5 w-full"
+                          />
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <span className="text-[10px] text-slate-500 font-bold block mb-0.5">
+                                정상가(원)
+                              </span>
+                              <input
+                                type="number"
+                                step={10000}
+                                value={pkg.regularPrice}
+                                onChange={(e) => {
+                                  const next = [...(clinic.customPackages || [])];
+                                  next[pkgIdx] = {
+                                    ...pkg,
+                                    regularPrice: Number(e.target.value) || 0,
+                                  };
+                                  onUpdateClinic({ ...clinic, customPackages: next });
+                                }}
+                                className="bg-slate-50 border border-blue-300 rounded-xl px-2.5 py-1 font-bold w-full"
+                              />
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-[#3182F6] font-extrabold block mb-0.5">
+                                추천 이벤트가(원)
+                              </span>
+                              <input
+                                type="number"
+                                step={10000}
+                                value={pkg.recommendedPrice}
+                                onChange={(e) => {
+                                  const next = [...(clinic.customPackages || [])];
+                                  next[pkgIdx] = {
+                                    ...pkg,
+                                    recommendedPrice: Number(e.target.value) || 0,
+                                  };
+                                  onUpdateClinic({ ...clinic, customPackages: next });
+                                }}
+                                className="bg-[#E8F3FF] border border-blue-300 rounded-xl px-2.5 py-1 font-extrabold text-[#1B64DA] w-full"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <span className="text-[10px] text-slate-500 font-bold block mb-0.5">
+                              패키지 구성품 (쉼표로 구분)
+                            </span>
+                            <input
+                              type="text"
+                              value={pkg.composition.join(", ")}
+                              onChange={(e) => {
+                                const next = [...(clinic.customPackages || [])];
+                                next[pkgIdx] = {
+                                  ...pkg,
+                                  composition: e.target.value
+                                    .split(",")
+                                    .map((s) => s.trim())
+                                    .filter(Boolean),
+                                };
+                                onUpdateClinic({ ...clinic, customPackages: next });
+                              }}
+                              className="bg-slate-50 border border-blue-300 rounded-xl px-2.5 py-1 w-full"
+                            />
+                          </div>
+
+                          <textarea
+                            rows={2}
+                            value={pkg.synergyPoint}
+                            onChange={(e) => {
+                              const next = [...(clinic.customPackages || [])];
+                              next[pkgIdx] = { ...pkg, synergyPoint: e.target.value };
+                              onUpdateClinic({ ...clinic, customPackages: next });
+                            }}
+                            placeholder="패키지 셀링 포인트 설명"
+                            className="bg-slate-50 border border-blue-300 rounded-xl p-2 w-full"
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-extrabold text-[#3182F6] bg-[#E8F3FF] px-3 py-1 rounded-full">
+                                {pkg.badge}
+                              </span>
+                              <div className="text-right">
+                                <span className="text-xs text-[#8B95A1] line-through mr-1.5">
+                                  {(pkg.regularPrice / 10000).toFixed(0)}만원
+                                </span>
+                                <span className="text-xl font-extrabold text-[#3182F6]">
+                                  {(pkg.recommendedPrice / 10000).toFixed(0)}만원
+                                </span>
+                              </div>
+                            </div>
+
+                            <h3 className="text-lg font-extrabold text-[#191F28]">{pkg.name}</h3>
+
+                            <div className="flex flex-wrap gap-1.5">
+                              {pkg.composition.map((comp, i) => (
+                                <span
+                                  key={i}
+                                  className="text-xs font-bold bg-[#F0F6FF] text-[#1B64DA] border border-[#CFE2FF] px-3 py-1 rounded-xl"
+                                >
+                                  + {comp}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-[#4E5968] pt-3 border-t border-[#F2F4F6] font-medium">
+                            💡 {pkg.synergyPoint}
+                          </p>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -2238,27 +2438,101 @@ export default function ClientPortalView({
 
         {/* ==================== TAB 5: Profit 시뮬레이터 ==================== */}
         {activeTab === "calculator" && (
-          <ReviveProfitSimulator
-            initialDefaults={clinic.simulatorDefaults}
-            clinicName={clinic.clinicName}
-            directorName={clinic.directorName}
-            sectionBadge={siteContent.calculatorSection.badgeText}
-            sectionTitle={siteContent.calculatorSection.title}
-            sectionSubtitle={siteContent.calculatorSection.subtitle}
-            protocols={siteContent.overviewSection.protocols}
-            editable={editable}
-            onChangeCalculatorSection={(nextCalc) =>
-              updateSiteContent({ calculatorSection: nextCalc })
-            }
-            onChangeProtocols={(nextProtocols) =>
-              updateSiteContent({
-                overviewSection: {
-                  ...siteContent.overviewSection,
-                  protocols: nextProtocols,
-                },
-              })
-            }
-          />
+          <div className="space-y-4">
+            {editable && onUpdateClinic && (
+              <div className="bg-amber-50 border-2 border-amber-300 rounded-3xl p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-amber-900">
+                    ✏️ [{clinic.clinicName}] 시뮬레이터 초기 세팅값 (원장님이 처음 열었을 때 표시될 기본 수치)
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="bg-white p-3 rounded-2xl border border-amber-200">
+                    <label className="block font-bold text-slate-600 mb-1">
+                      1cc당 기본 입고 원가 (원)
+                    </label>
+                    <input
+                      type="number"
+                      step={5000}
+                      value={clinic.simulatorDefaults.unitCost}
+                      onChange={(e) =>
+                        onUpdateClinic({
+                          ...clinic,
+                          simulatorDefaults: {
+                            ...clinic.simulatorDefaults,
+                            unitCost: Number(e.target.value) || 135000,
+                          },
+                        })
+                      }
+                      className="w-full font-extrabold text-sm text-[#191F28] bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5"
+                    />
+                  </div>
+                  <div className="bg-white p-3 rounded-2xl border border-amber-200">
+                    <label className="block font-bold text-[#3182F6] mb-1">
+                      1cc당 권장 시술 판매가 (원)
+                    </label>
+                    <input
+                      type="number"
+                      step={10000}
+                      value={clinic.simulatorDefaults.sellingPrice}
+                      onChange={(e) =>
+                        onUpdateClinic({
+                          ...clinic,
+                          simulatorDefaults: {
+                            ...clinic.simulatorDefaults,
+                            sellingPrice: Number(e.target.value) || 440000,
+                          },
+                        })
+                      }
+                      className="w-full font-extrabold text-sm text-[#1B64DA] bg-[#E8F3FF] border border-blue-300 rounded-xl px-3 py-1.5"
+                    />
+                  </div>
+                  <div className="bg-white p-3 rounded-2xl border border-amber-200">
+                    <label className="block font-bold text-slate-600 mb-1">
+                      제안 도입 수량 (박스/시린지)
+                    </label>
+                    <input
+                      type="number"
+                      step={5}
+                      value={clinic.simulatorDefaults.purchaseQty}
+                      onChange={(e) =>
+                        onUpdateClinic({
+                          ...clinic,
+                          simulatorDefaults: {
+                            ...clinic.simulatorDefaults,
+                            purchaseQty: Number(e.target.value) || 30,
+                          },
+                        })
+                      }
+                      className="w-full font-extrabold text-sm text-[#191F28] bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <ReviveProfitSimulator
+              initialDefaults={clinic.simulatorDefaults}
+              clinicName={clinic.clinicName}
+              directorName={clinic.directorName}
+              sectionBadge={siteContent.calculatorSection.badgeText}
+              sectionTitle={siteContent.calculatorSection.title}
+              sectionSubtitle={siteContent.calculatorSection.subtitle}
+              protocols={siteContent.overviewSection.protocols}
+              editable={editable}
+              onChangeCalculatorSection={(nextCalc) =>
+                updateSiteContent({ calculatorSection: nextCalc })
+              }
+              onChangeProtocols={(nextProtocols) =>
+                updateSiteContent({
+                  overviewSection: {
+                    ...siteContent.overviewSection,
+                    protocols: nextProtocols,
+                  },
+                })
+              }
+            />
+          </div>
         )}
       </main>
 

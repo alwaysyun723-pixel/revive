@@ -969,6 +969,27 @@
   ],
   "accessLogs": [
     {
+      "sessionId": "sess-toxnfill-gn-1793883805281-m090",
+      "clinicSlug": "toxnfill-gn",
+      "clinicName": "톡스앤필 강남본점",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T13:03:25.636Z",
+      "lastActiveAt": "2026-11-05T13:03:25.636Z",
+      "totalDwellSeconds": 1,
+      "tabDwellSeconds": {
+        "home": 1,
+        "overview": 0,
+        "events": 0,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home"
+      ],
+      "clickedItems": []
+    },
+    {
       "sessionId": "sess-clinic-3919-1793883614903-9sn2",
       "clinicSlug": "clinic-3919",
       "clinicName": "기내의원",

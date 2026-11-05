@@ -524,7 +524,7 @@
     {
       "id": "clinic-1793883161654",
       "slug": "clinic-3919",
-      "clinicName": "신규 거래처 의원",
+      "clinicName": "기내의원",
       "directorName": "대표원장",
       "pin": "0070",
       "isActive": true,
@@ -566,7 +566,7 @@
       ],
       "customPackages": [],
       "createdAt": "2026-11-05T12:52:41.654Z",
-      "updatedAt": "2026-11-05T12:52:50.208Z"
+      "updatedAt": "2026-11-05T12:54:11.898Z"
     },
     {
       "id": "clinic-toxnfill-gn",
@@ -921,48 +921,6 @@
     }
   ],
   "accessLogs": [
-    {
-      "sessionId": "sess-clinic-3919-1793883242796-hk4n",
-      "clinicSlug": "clinic-3919",
-      "clinicName": "신규 거래처 의원",
-      "directorName": "대표원장",
-      "deviceType": "PC",
-      "startedAt": "2026-11-05T12:54:02.947Z",
-      "lastActiveAt": "2026-11-05T12:54:02.947Z",
-      "totalDwellSeconds": 1,
-      "tabDwellSeconds": {
-        "home": 1,
-        "overview": 0,
-        "events": 0,
-        "packages": 0,
-        "calculator": 0
-      },
-      "tabSequence": [
-        "home"
-      ],
-      "clickedItems": []
-    },
-    {
-      "sessionId": "sess-clinic-3919-1793883215636-7ggc",
-      "clinicSlug": "clinic-3919",
-      "clinicName": "신규 거래처 의원",
-      "directorName": "대표원장",
-      "deviceType": "PC",
-      "startedAt": "2026-11-05T12:53:35.693Z",
-      "lastActiveAt": "2026-11-05T12:53:35.693Z",
-      "totalDwellSeconds": 1,
-      "tabDwellSeconds": {
-        "home": 1,
-        "overview": 0,
-        "events": 0,
-        "packages": 0,
-        "calculator": 0
-      },
-      "tabSequence": [
-        "home"
-      ],
-      "clickedItems": []
-    },
     {
       "sessionId": "sess-theia-gn-1793877148441-588y",
       "clinicSlug": "theia-gn",

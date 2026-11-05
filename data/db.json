@@ -937,6 +937,21 @@
   ],
   "activityApplications": [
     {
+      "id": "app-1793890429089",
+      "clinicSlug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "activityId": "act-mex-tailored",
+      "activityCode": "MEX-TAILORED",
+      "activityTitle": "샘플 지원 & 발룬티어 참관",
+      "preferredDate": "이번주 토요일 세시",
+      "contactPhone": "",
+      "requestNote": "건조함",
+      "createdAt": "2026-11-05T14:53:49.089Z",
+      "status": "접수완료",
+      "kakaoNotified": false
+    },
+    {
       "id": "app-1793890396984",
       "clinicSlug": "clinic-3919",
       "clinicName": "기내의원",
@@ -1012,6 +1027,11 @@
           "type": "activity_apply",
           "label": "MEX-TALK 신청 (이번주 토욜 3시)",
           "timestamp": "2026-11-05T14:53:16.984Z"
+        },
+        {
+          "type": "activity_apply",
+          "label": "MEX-TAILORED 신청 (이번주 토요일 세시)",
+          "timestamp": "2026-11-05T14:53:49.089Z"
         }
       ]
     },

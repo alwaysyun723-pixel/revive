@@ -6,7 +6,7 @@
     "phone": "010-4631-7925",
     "email": "yun.seo@merz.co.kr",
     "kakaoId": "seoyun4",
-    "kakaoOpenChatUrl": "",
+    "kakaoOpenChatUrl": "http://qr.kakao.com/talk/rWbkaPX81O4cm1K6BacAGUoT0Ps-",
     "kakaoWebhookToken": "",
     "customWebhookUrl": "",
     "tagline": "벨로테로 리바이브 도입부터 원내 셀링까지 편하게 문의주세요.",
@@ -1123,7 +1123,7 @@
       "directorName": "김원장",
       "deviceType": "PC",
       "startedAt": "2026-11-05T11:01:45.502Z",
-      "lastActiveAt": "2026-11-05T13:05:43.300Z",
+      "lastActiveAt": "2026-11-05T13:10:13.135Z",
       "totalDwellSeconds": 4827,
       "tabDwellSeconds": {
         "home": 42,

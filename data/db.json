@@ -937,6 +937,21 @@
   ],
   "activityApplications": [
     {
+      "id": "app-1793890396984",
+      "clinicSlug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "activityId": "act-mex-talk",
+      "activityCode": "MEX-TALK",
+      "activityTitle": "시술 시연 영상 받아보기",
+      "preferredDate": "이번주 토욜 3시",
+      "contactPhone": "",
+      "requestNote": "밥무그까요",
+      "createdAt": "2026-11-05T14:53:16.984Z",
+      "status": "접수완료",
+      "kakaoNotified": false
+    },
+    {
       "id": "app-1793877186504",
       "clinicSlug": "theia-gn",
       "clinicName": "테이아의원 강남본점",
@@ -992,6 +1007,11 @@
           "type": "contact_action",
           "label": "RBS 서윤 카카오톡(seoyun4) 연결 클릭",
           "timestamp": "2026-11-05T14:52:20.715Z"
+        },
+        {
+          "type": "activity_apply",
+          "label": "MEX-TALK 신청 (이번주 토욜 3시)",
+          "timestamp": "2026-11-05T14:53:16.984Z"
         }
       ]
     },

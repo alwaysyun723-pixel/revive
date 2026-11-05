@@ -261,8 +261,12 @@ export default function ClientPortalView({
         label: `RBS ${db.repProfile.name} 카카오톡(${db.repProfile.kakaoId}) 연결 클릭`,
       },
     });
-    const directUrl = db.repProfile.kakaoOpenChatUrl?.trim();
-    if (directUrl && typeof window !== "undefined") {
+    const directUrl = db.repProfile.kakaoOpenChatUrl?.trim() || "";
+    if (
+      directUrl &&
+      typeof window !== "undefined" &&
+      (directUrl.includes("open.kakao.com") || directUrl.includes("pf.kakao.com"))
+    ) {
       window.location.href = directUrl;
       return;
     }
@@ -2583,34 +2587,36 @@ export default function ClientPortalView({
         </div>
       </footer>
 
-      {/* ==================== MODAL 1: KAKAO ID (seoyun4) ==================== */}
+      {/* ==================== MODAL 1: KAKAO PROFILE & QR (seoyun4) ==================== */}
       {kakaoModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-[32px] max-w-sm w-full p-7 shadow-2xl space-y-5 text-center animate-fade-in">
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => setKakaoModalOpen(false)}
-                className="p-1 text-[#8B95A1] hover:text-[#191F28]"
-              >
-                <X className="w-5 h-5" />
-              </button>
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setKakaoModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-[32px] max-w-sm w-full p-5 shadow-2xl space-y-4 text-center relative animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setKakaoModalOpen(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 text-[#191F28] flex items-center justify-center z-10 transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+              <img
+                src="/kakao-profile-seoyun.jpg"
+                alt={`${repProfile.name} 카카오톡 프로필 (${repProfile.kakaoId})`}
+                className="w-full h-auto object-cover"
+              />
             </div>
 
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-[#3182F6]">복사 완료!</span>
-              <h3 className="text-xl font-extrabold text-[#191F28]">
-                카톡 ID가 복사되었어요
-              </h3>
-              <p className="text-xs text-[#8B95A1]">
-                카카오톡 [친구 추가 → ID로 추가]에 붙여넣어 주세요
-              </p>
-            </div>
-
-            <div className="bg-[#F2F4F6] rounded-2xl p-4 flex items-center justify-between">
-              <span className="text-xs text-[#8B95A1] font-bold">카카오톡 ID</span>
+            <div className="bg-[#F2F4F6] rounded-2xl p-3.5 flex items-center justify-between">
+              <span className="text-xs text-[#8B95A1] font-bold">카카오톡 ID (복사됨)</span>
               <div className="flex items-center gap-2">
-                <strong className="text-lg font-extrabold text-[#191F28]">
+                <strong className="text-base font-extrabold text-[#191F28]">
                   {repProfile.kakaoId}
                 </strong>
                 <button
@@ -2627,13 +2633,19 @@ export default function ClientPortalView({
               </div>
             </div>
 
+            <p className="text-[11px] text-[#4E5968] leading-relaxed">
+              휴대폰에서는 위 <strong>QR코드를 길게 누르거나</strong> PC에서는{" "}
+              <strong>카메라로 스캔</strong>하시면 바로{" "}
+              <strong>{repProfile.name}</strong> 프로필로 연결됩니다.
+            </p>
+
             <div className="space-y-2">
               <a
-                href={repProfile.kakaoOpenChatUrl || "kakaotalk://launch"}
+                href="kakaotalk://launch"
                 className="w-full bg-[#FEE500] hover:bg-[#FDD800] text-[#191F28] font-extrabold py-3.5 rounded-2xl flex items-center justify-center gap-2 text-sm transition"
               >
                 <MessageCircle className="w-4 h-4 fill-[#191F28]" />
-                <span>카카오톡 열기</span>
+                <span>카카오톡 앱 바로 열기</span>
               </a>
               <a
                 href={`tel:${repProfile.phone}`}

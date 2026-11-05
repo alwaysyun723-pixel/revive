@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { RemodelingDatabase } from "@/types/remodeling";
-import { Phone, MessageCircle, Settings, LogIn, Check } from "lucide-react";
+import { Phone, MessageCircle, Settings, LogIn, Check, X, Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -15,6 +15,7 @@ export default function PrivateGatewayView({ db }: Props) {
   const [pinInput, setPinInput] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [kakaoCopied, setKakaoCopied] = useState<boolean>(false);
+  const [kakaoProfileOpen, setKakaoProfileOpen] = useState<boolean>(false);
 
   const activeClinics = db.clinics.filter((c) => c.isActive !== false);
 
@@ -74,6 +75,17 @@ export default function PrivateGatewayView({ db }: Props) {
     }
   };
 
+  const launchKakaoApp = () => {
+    if (typeof window === "undefined") return;
+    const ua = navigator.userAgent || "";
+    if (/android/i.test(ua)) {
+      window.location.href =
+        "intent://main#Intent;scheme=kakaotalk;package=com.kakao.talk;end";
+    } else {
+      window.location.href = "kakaotalk://launch";
+    }
+  };
+
   const handleKakaoClick = () => {
     if (typeof window !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(db.repProfile.kakaoId);
@@ -83,21 +95,20 @@ export default function PrivateGatewayView({ db }: Props) {
 
     if (typeof window === "undefined") return;
 
-    const directProfileUrl = db.repProfile.kakaoOpenChatUrl?.trim();
-    if (directProfileUrl) {
-      // Directly launches KakaoTalk app and opens the bound KakaoTalk profile (qr.kakao.com/talk/... or open.kakao.com/...)
+    const directProfileUrl = db.repProfile.kakaoOpenChatUrl?.trim() || "";
+    // Only navigate directly if it is an open.kakao.com or pf.kakao.com link (qr.kakao.com redirects browsers to kakaocorp homepage)
+    if (
+      directProfileUrl &&
+      (directProfileUrl.includes("open.kakao.com") ||
+        directProfileUrl.includes("pf.kakao.com"))
+    ) {
       window.location.href = directProfileUrl;
       return;
     }
 
-    // Launch KakaoTalk app directly on iPhone / Android / PC
-    const ua = navigator.userAgent || "";
-    if (/android/i.test(ua)) {
-      window.location.href =
-        "intent://main#Intent;scheme=kakaotalk;package=com.kakao.talk;end";
-    } else {
-      window.location.href = "kakaotalk://launch";
-    }
+    // Show RBS 서윤's actual KakaoTalk Profile Card + QR modal immediately AND launch KakaoTalk app
+    setKakaoProfileOpen(true);
+    launchKakaoApp();
   };
 
   return (
@@ -264,6 +275,74 @@ export default function PrivateGatewayView({ db }: Props) {
 
       {/* Empty bottom spacer for balanced vertical centering (no bottom text) */}
       <div className="h-4" />
+
+      {/* Direct KakaoTalk Profile & QR Popup Modal */}
+      {kakaoProfileOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setKakaoProfileOpen(false)}
+        >
+          <div
+            className="bg-white rounded-[32px] max-w-sm w-full p-5 shadow-2xl space-y-4 text-center relative animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setKakaoProfileOpen(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 text-[#191F28] flex items-center justify-center z-10 transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Uploaded Actual KakaoTalk Profile Card Image (서윤 / seoyun4 + QR) */}
+            <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+              <img
+                src="/kakao-profile-seoyun.jpg"
+                alt={`${db.repProfile.name} 카카오톡 프로필 (${db.repProfile.kakaoId})`}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+
+            <div className="bg-[#F8FAFC] border border-slate-200 rounded-2xl px-4 py-3 flex items-center justify-between">
+              <div className="text-left">
+                <span className="text-[11px] font-bold text-[#3182F6] block">
+                  카톡 ID 자동 복사 완료
+                </span>
+                <strong className="text-sm font-extrabold text-[#191F28]">
+                  ID : {db.repProfile.kakaoId}
+                </strong>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(db.repProfile.kakaoId);
+                  setKakaoCopied(true);
+                  setTimeout(() => setKakaoCopied(false), 2500);
+                }}
+                className="bg-white border border-slate-200 hover:bg-slate-50 text-[#191F28] text-xs font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>ID 복사</span>
+              </button>
+            </div>
+
+            <p className="text-[11px] text-[#4E5968] leading-relaxed">
+              휴대폰에서는 위 <strong>QR코드를 길게 누르거나</strong> PC에서는{" "}
+              <strong>카메라로 스캔</strong>하시면 바로{" "}
+              <strong>{db.repProfile.name}</strong> 프로필로 연결됩니다.
+            </p>
+
+            <button
+              type="button"
+              onClick={launchKakaoApp}
+              className="w-full bg-[#FEE500] hover:bg-[#FDD800] text-[#191F28] font-extrabold py-3.5 rounded-2xl flex items-center justify-center gap-2 text-sm shadow-sm transition active:scale-[0.98]"
+            >
+              <MessageCircle className="w-4 h-4 fill-[#191F28]" />
+              <span>카카오톡 앱 바로 열기</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

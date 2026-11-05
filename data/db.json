@@ -969,6 +969,33 @@
   ],
   "accessLogs": [
     {
+      "sessionId": "sess-clinic-3919-1793884294196-jach",
+      "clinicSlug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T13:11:34.995Z",
+      "lastActiveAt": "2026-11-05T13:11:36.154Z",
+      "totalDwellSeconds": 1,
+      "tabDwellSeconds": {
+        "home": 1,
+        "overview": 0,
+        "events": 0,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home"
+      ],
+      "clickedItems": [
+        {
+          "type": "contact_action",
+          "label": "RBS 서윤 카카오톡(seoyun4) 연결 클릭",
+          "timestamp": "2026-11-05T13:11:36.154Z"
+        }
+      ]
+    },
+    {
       "sessionId": "sess-toxnfill-gn-1793883805281-m090",
       "clinicSlug": "toxnfill-gn",
       "clinicName": "톡스앤필 강남본점",
@@ -1123,14 +1150,14 @@
       "directorName": "김원장",
       "deviceType": "PC",
       "startedAt": "2026-11-05T11:01:45.502Z",
-      "lastActiveAt": "2026-11-05T13:10:13.135Z",
-      "totalDwellSeconds": 4827,
+      "lastActiveAt": "2026-11-05T13:16:53.407Z",
+      "totalDwellSeconds": 4832,
       "tabDwellSeconds": {
         "home": 42,
         "overview": 125,
         "events": 5,
         "packages": 5,
-        "calculator": 4650
+        "calculator": 4655
       },
       "tabSequence": [
         "home",

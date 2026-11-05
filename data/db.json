@@ -969,33 +969,6 @@
   ],
   "accessLogs": [
     {
-      "sessionId": "sess-toxnfill-gn-1793883768375-nrbd",
-      "clinicSlug": "toxnfill-gn",
-      "clinicName": "톡스앤필 강남본점",
-      "directorName": "대표원장",
-      "deviceType": "PC",
-      "startedAt": "2026-11-05T13:02:48.596Z",
-      "lastActiveAt": "2026-11-05T13:02:53.770Z",
-      "totalDwellSeconds": 1,
-      "tabDwellSeconds": {
-        "home": 1,
-        "overview": 0,
-        "events": 0,
-        "packages": 0,
-        "calculator": 0
-      },
-      "tabSequence": [
-        "home"
-      ],
-      "clickedItems": [
-        {
-          "type": "event_link",
-          "label": "닥터에버스의원 강남점 이벤트 페이지 이동",
-          "timestamp": "2026-11-05T13:02:53.770Z"
-        }
-      ]
-    },
-    {
       "sessionId": "sess-clinic-3919-1793883614903-9sn2",
       "clinicSlug": "clinic-3919",
       "clinicName": "기내의원",

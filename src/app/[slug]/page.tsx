@@ -30,9 +30,9 @@ interface PageProps {
   };
 }
 
-export default function ShortClinicDistributionPage({ params }: PageProps) {
-  const db = getDatabase();
-  const academicFiles = getAcademicFilesList();
+export default async function ShortClinicDistributionPage({ params }: PageProps) {
+  const db = await getDatabase();
+  const academicFiles = await getAcademicFilesList();
   const decodedSlug = decodeURIComponent(params.slug).toLowerCase();
   const mappedSlug = SHORT_ALIAS_MAP[decodedSlug] || decodedSlug;
 

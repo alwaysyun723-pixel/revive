@@ -327,13 +327,32 @@ export default function AdminDashboardView({
   };
 
   const handleCopyClinicShareMessage = (clinic: ClinicConfig) => {
+    persistDb(
+      db,
+      `${clinic.clinicName} 카톡 초대 문구(공통 링크 + 고유 PIN: ${clinic.pin})가 복사 및 저장되었어요!`
+    );
     const base = getEffectiveBaseUrl();
     const url = shortUrlsMap[clinic.id] || base;
     const shareText = `[Merz Aesthetics · Re:modeling Consulting Portal]\n\n${clinic.clinicName} ${clinic.directorName}님, 안녕하세요!\n멀츠 에스테틱스 코리아 ${db.repProfile.roleTitle} ${db.repProfile.name}입니다.\n\n${clinic.clinicName}을 위해 준비한 벨로테로 리바이브 강남·서초 트렌드 및 수익 시뮬레이터 포털입니다.\n\n▶ 접속 링크: ${url}\n▶ 전용 PIN 번호: ${clinic.pin}\n\n위 링크에서 PIN 번호(${clinic.pin})를 입력하시고 [Let's Revive]를 누르시면 ${clinic.clinicName} 전용 화면이 열립니다.`;
     navigator.clipboard.writeText(shareText);
     setCopiedId(clinic.id);
     setTimeout(() => setCopiedId(null), 2500);
-    showToast(`${clinic.clinicName} 카톡 초대 문구(공통 링크 + 고유 PIN: ${clinic.pin})가 복사되었어요!`);
+  };
+
+  const handleOpenClinicPage = async (clinic: ClinicConfig) => {
+    const cleanSlug = clinic.slug.trim();
+    const cleanPin = clinic.pin.trim();
+    const targetUrl = `/${cleanSlug}?pin=${encodeURIComponent(cleanPin)}`;
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(`remodeling_unlocked_${cleanSlug}`, cleanPin);
+      const newWin = window.open("about:blank", "_blank");
+      await persistDb(db, `${clinic.clinicName} 전용 페이지를 저장 후 열었어요.`);
+      if (newWin) {
+        newWin.location.href = targetUrl;
+      } else {
+        window.location.href = targetUrl;
+      }
+    }
   };
 
   const handleAddCustomPackageToClinic = () => {
@@ -687,6 +706,7 @@ export default function AdminDashboardView({
                         onChange={(e) =>
                           handleUpdateClinic({ ...editingClinic, clinicName: e.target.value })
                         }
+                        onBlur={() => persistDb(db, "병원명이 자동 저장되었어요!")}
                         className="w-full text-xs font-extrabold bg-white border border-slate-300 rounded-xl px-2.5 py-1.5"
                       />
                     </div>
@@ -700,12 +720,13 @@ export default function AdminDashboardView({
                         onChange={(e) =>
                           handleUpdateClinic({ ...editingClinic, directorName: e.target.value })
                         }
+                        onBlur={() => persistDb(db, "원장님 호칭이 자동 저장되었어요!")}
                         className="w-full text-xs font-extrabold bg-white border border-slate-300 rounded-xl px-2.5 py-1.5"
                       />
                     </div>
                     <div>
                       <label className="block text-[10px] font-extrabold text-slate-500 mb-0.5">
-                        전용 공유 URL (/c/코드)
+                        전용 공유 URL (/코드)
                       </label>
                       <input
                         type="text"
@@ -716,6 +737,7 @@ export default function AdminDashboardView({
                             slug: e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""),
                           })
                         }
+                        onBlur={() => persistDb(db, "전용 URL 코드가 자동 저장되었어요!")}
                         className="w-full text-xs font-mono font-bold bg-white border border-slate-300 rounded-xl px-2.5 py-1.5"
                       />
                     </div>
@@ -730,6 +752,7 @@ export default function AdminDashboardView({
                         onChange={(e) =>
                           handleUpdateClinic({ ...editingClinic, pin: e.target.value })
                         }
+                        onBlur={() => persistDb(db, `고유 PIN(${editingClinic.pin})이 자동 저장되었어요!`)}
                         className="w-full text-xs font-extrabold text-[#1B64DA] bg-[#E8F3FF] border border-[#90C2FF] rounded-xl px-2.5 py-1.5"
                       />
                     </div>
@@ -787,14 +810,14 @@ export default function AdminDashboardView({
                       )}
                     </button>
 
-                    <Link
-                      href={`/${editingClinic.slug}`}
-                      target="_blank"
+                    <button
+                      type="button"
+                      onClick={() => handleOpenClinicPage(editingClinic)}
                       className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-xs font-extrabold px-3.5 py-2 rounded-xl flex items-center gap-1 transition shadow-sm"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       <span>전용 페이지 열기</span>
-                    </Link>
+                    </button>
                   </div>
                 </div>
               )}
@@ -1000,15 +1023,17 @@ export default function AdminDashboardView({
                               </>
                             )}
                           </button>
-                          <Link
-                            href={`/c/${c.slug}`}
-                            target="_blank"
-                            onClick={(e) => e.stopPropagation()}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenClinicPage(c);
+                            }}
                             className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-xs font-bold py-2 px-3 rounded-xl flex items-center gap-1 transition"
                           >
                             <Eye className="w-3.5 h-3.5" />
                             <span>열기</span>
-                          </Link>
+                          </button>
                         </div>
                       </div>
                     );
@@ -1029,14 +1054,14 @@ export default function AdminDashboardView({
                       </h3>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`/c/${editingClinic.slug}`}
-                        target="_blank"
+                      <button
+                        type="button"
+                        onClick={() => handleOpenClinicPage(editingClinic)}
                         className="text-xs bg-[#F2F4F6] hover:bg-[#E5E8EB] text-[#191F28] font-bold px-3.5 py-2.5 rounded-xl flex items-center gap-1.5"
                       >
-                        <span>배포 페이지 미리보기</span>
+                        <span>전용 페이지 열기</span>
                         <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
+                      </button>
                       <button
                         type="button"
                         onClick={() =>
@@ -1053,7 +1078,7 @@ export default function AdminDashboardView({
                   {/* 1. 기본 정보 & 보안 PIN */}
                   <div className="space-y-3">
                     <h4 className="text-sm font-extrabold text-[#191F28]">
-                      1) 기본 병원 정보 · 고유 링크 · 4자리 보안 PIN
+                      1) 기본 병원 정보 · 고유 링크 · 보안 PIN
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                       <div>
@@ -1066,6 +1091,7 @@ export default function AdminDashboardView({
                           onChange={(e) =>
                             handleUpdateClinic({ ...editingClinic, clinicName: e.target.value })
                           }
+                          onBlur={() => persistDb(db, "병원명이 자동 저장되었어요!")}
                           className="w-full text-sm font-bold bg-slate-50 border border-slate-300 rounded-xl px-3 py-2"
                         />
                       </div>
@@ -1079,12 +1105,13 @@ export default function AdminDashboardView({
                           onChange={(e) =>
                             handleUpdateClinic({ ...editingClinic, directorName: e.target.value })
                           }
+                          onBlur={() => persistDb(db, "원장님 호칭이 자동 저장되었어요!")}
                           className="w-full text-sm font-bold bg-slate-50 border border-slate-300 rounded-xl px-3 py-2"
                         />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-slate-600 mb-1">
-                          고유 URL 코드 (/c/코드)
+                          고유 URL 코드 (/코드)
                         </label>
                         <input
                           type="text"
@@ -1095,20 +1122,22 @@ export default function AdminDashboardView({
                               slug: e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""),
                             })
                           }
+                          onBlur={() => persistDb(db, "전용 URL 코드가 자동 저장되었어요!")}
                           className="w-full text-sm font-mono bg-slate-50 border border-slate-300 rounded-xl px-3 py-2"
                         />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-[#3182F6] mb-1">
-                          보안 PIN 번호 (4자리)
+                          보안 PIN 번호
                         </label>
                         <input
                           type="text"
-                          maxLength={6}
+                          maxLength={8}
                           value={editingClinic.pin}
                           onChange={(e) =>
                             handleUpdateClinic({ ...editingClinic, pin: e.target.value })
                           }
+                          onBlur={() => persistDb(db, `고유 PIN(${editingClinic.pin})이 자동 저장되었어요!`)}
                           className="w-full text-sm font-extrabold text-[#1B64DA] bg-[#E8F3FF] border border-[#90C2FF] rounded-xl px-3 py-2"
                         />
                       </div>

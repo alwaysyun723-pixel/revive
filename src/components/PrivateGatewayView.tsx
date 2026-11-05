@@ -18,7 +18,9 @@ export default function PrivateGatewayView({ db }: Props) {
 
   const activeClinics = db.clinics.filter((c) => c.isActive !== false);
 
-  const handleGatewaySubmit = (e: React.FormEvent) => {
+  const [checkingPin, setCheckingPin] = useState<boolean>(false);
+
+  const handleGatewaySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -37,8 +39,28 @@ export default function PrivateGatewayView({ db }: Props) {
       return;
     }
 
-    // Match clinic by unique PIN across active clinics
-    const matchedClinic = activeClinics.find((c) => c.pin.trim() === trimmedPin);
+    // 1. Check initial props.db first
+    let matchedClinic = activeClinics.find((c) => c.pin.trim() === trimmedPin);
+
+    // 2. Always fetch latest /api/db if not found in initial props (in case a new clinic/PIN was just created in Admin!)
+    if (!matchedClinic) {
+      setCheckingPin(true);
+      try {
+        const res = await fetch("/api/db", { cache: "no-store" });
+        const data = await res.json();
+        if (data?.db?.clinics) {
+          const latestActive = (data.db.clinics as typeof db.clinics).filter(
+            (c) => c.isActive !== false
+          );
+          matchedClinic = latestActive.find((c) => c.pin.trim() === trimmedPin);
+        }
+      } catch {
+        // Ignore network error
+      } finally {
+        setCheckingPin(false);
+      }
+    }
+
     if (matchedClinic) {
       if (typeof window !== "undefined") {
         sessionStorage.setItem(
@@ -188,10 +210,11 @@ export default function PrivateGatewayView({ db }: Props) {
           {/* Let's Revive Login Button with Login Graphic */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-[#3182F6] via-[#1B64DA] to-[#00A8E8] hover:opacity-95 text-white font-extrabold py-4 rounded-2xl transition active:scale-[0.98] text-base shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2.5"
+            disabled={checkingPin}
+            className="w-full bg-gradient-to-r from-[#3182F6] via-[#1B64DA] to-[#00A8E8] hover:opacity-95 text-white font-extrabold py-4 rounded-2xl transition active:scale-[0.98] text-base shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2.5 disabled:opacity-60"
           >
             <LogIn className="w-5 h-5 stroke-[2.5]" />
-            <span>Let&apos;s Revive</span>
+            <span>{checkingPin ? "확인 중..." : "Let's Revive"}</span>
           </button>
         </form>
 

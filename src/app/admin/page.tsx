@@ -4,9 +4,9 @@ import AdminDashboardView from "@/components/AdminDashboardView";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminPage() {
-  const db = getDatabase();
-  const academicFiles = getAcademicFilesList();
+export default async function AdminPage() {
+  const db = await getDatabase();
+  const academicFiles = await getAcademicFilesList();
   const academicDirPath = getAcademicDirPath();
 
   return (

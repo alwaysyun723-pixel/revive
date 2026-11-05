@@ -4,8 +4,8 @@ import PrivateGatewayView from "@/components/PrivateGatewayView";
 
 export const dynamic = "force-dynamic";
 
-export default function HomePage() {
-  const db = getDatabase();
+export default async function HomePage() {
+  const db = await getDatabase();
 
   return <PrivateGatewayView db={db} />;
 }

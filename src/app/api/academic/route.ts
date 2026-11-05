@@ -6,7 +6,7 @@ import { getAcademicDirPath, getAcademicFilesList, getDatabase, saveDatabase } f
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const files = getAcademicFilesList();
+  const files = await getAcademicFilesList();
   const dirPath = getAcademicDirPath();
   return NextResponse.json({ files, dirPath });
 }
@@ -30,18 +30,18 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     fs.writeFileSync(targetPath, Buffer.from(arrayBuffer));
 
-    const db = getDatabase();
+    const db = await getDatabase();
     db.academicFileMeta = db.academicFileMeta || {};
     db.academicFileMeta[safeName] = {
       displayName: displayName.trim() || safeName.replace(/\.[^/.]+$/, "").replace(/_/g, " "),
       category: category.trim() || "학술·임상 자료",
       description: description.trim() || "관리자 업로드 학술 자료",
     };
-    saveDatabase(db);
+    await saveDatabase(db, true);
 
     return NextResponse.json({
       ok: true,
-      files: getAcademicFilesList(),
+      files: await getAcademicFilesList(),
     });
   } catch (err) {
     return NextResponse.json(
@@ -67,15 +67,15 @@ export async function DELETE(req: NextRequest) {
       fs.unlinkSync(targetPath);
     }
 
-    const db = getDatabase();
+    const db = await getDatabase();
     if (db.academicFileMeta && db.academicFileMeta[safeName]) {
       delete db.academicFileMeta[safeName];
-      saveDatabase(db);
+      await saveDatabase(db, true);
     }
 
     return NextResponse.json({
       ok: true,
-      files: getAcademicFilesList(),
+      files: await getAcademicFilesList(),
     });
   } catch (err) {
     return NextResponse.json(

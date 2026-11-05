@@ -5,7 +5,7 @@ import { TabKey } from "@/types/remodeling";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const db = getDatabase();
+  const db = await getDatabase();
   return NextResponse.json({ accessLogs: db.accessLogs });
 }
 
@@ -39,9 +39,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Missing sessionId or clinicSlug" }, { status: 400 });
     }
 
-    const db = getDatabase();
+    const db = await getDatabase();
     const nowIso = new Date().toISOString();
     let session = db.accessLogs.find((s) => s.sessionId === sessionId);
+    const isNewSession = !session;
 
     if (!session) {
       session = {
@@ -89,7 +90,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    saveDatabase(db);
+    const shouldSyncCloud =
+      isNewSession || Boolean(clickedItem) || session.totalDwellSeconds % 30 === 0;
+    await saveDatabase(db, shouldSyncCloud);
     return NextResponse.json({ ok: true, session });
   } catch (err) {
     return NextResponse.json(

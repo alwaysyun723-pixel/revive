@@ -112,13 +112,20 @@ export default function ClientPortalView({
   const [pinInput, setPinInput] = useState<string>("");
   const [pinError, setPinError] = useState<string>("");
 
-  // Check sessionStorage on mount if requirePin is enabled
+  // Check sessionStorage or URL ?pin= query on mount if requirePin is enabled
   useEffect(() => {
     if (!requirePin || editable) {
       setIsUnlocked(true);
       return;
     }
     if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlPin = params.get("pin")?.trim();
+      if (urlPin && urlPin === clinic.pin.trim()) {
+        sessionStorage.setItem(`remodeling_unlocked_${clinic.slug}`, clinic.pin.trim());
+        setIsUnlocked(true);
+        return;
+      }
       const savedPin = sessionStorage.getItem(`remodeling_unlocked_${clinic.slug}`);
       if (savedPin && savedPin === clinic.pin.trim()) {
         setIsUnlocked(true);

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       sessionId,
     } = body;
 
-    const db = getDatabase();
+    const db = await getDatabase();
     const nowIso = new Date().toISOString();
 
     const newApp: ActivityApplication = {
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    saveDatabase(db);
+    await saveDatabase(db, true);
 
     return NextResponse.json({
       ok: true,

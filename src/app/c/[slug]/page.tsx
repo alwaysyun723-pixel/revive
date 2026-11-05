@@ -12,9 +12,9 @@ interface PageProps {
   };
 }
 
-export default function ClinicDistributionPage({ params }: PageProps) {
-  const db = getDatabase();
-  const academicFiles = getAcademicFilesList();
+export default async function ClinicDistributionPage({ params }: PageProps) {
+  const db = await getDatabase();
+  const academicFiles = await getAcademicFilesList();
   const decodedSlug = decodeURIComponent(params.slug).toLowerCase();
   const aliasMap: Record<string, string> = {
     "1": "toxnfill-gn",

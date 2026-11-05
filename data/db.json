@@ -526,7 +526,7 @@
       "slug": "clinic-3919",
       "clinicName": "신규 거래처 의원",
       "directorName": "대표원장",
-      "pin": "3919",
+      "pin": "0070",
       "isActive": true,
       "customGreeting": "원장님, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
       "heroHeadline": "신규 거래처 원장님을 위한 리바이브 핵심 브리핑",
@@ -566,7 +566,7 @@
       ],
       "customPackages": [],
       "createdAt": "2026-11-05T12:52:41.654Z",
-      "updatedAt": "2026-11-05T12:52:41.654Z"
+      "updatedAt": "2026-11-05T12:52:50.208Z"
     },
     {
       "id": "clinic-toxnfill-gn",

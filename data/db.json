@@ -975,7 +975,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-05T13:00:15.150Z",
-      "lastActiveAt": "2026-11-05T13:00:15.150Z",
+      "lastActiveAt": "2026-11-05T13:00:43.450Z",
       "totalDwellSeconds": 1,
       "tabDwellSeconds": {
         "home": 1,
@@ -987,7 +987,13 @@
       "tabSequence": [
         "home"
       ],
-      "clickedItems": []
+      "clickedItems": [
+        {
+          "type": "contact_action",
+          "label": "RBS 서윤 카카오톡(seoyun4) 연결 클릭",
+          "timestamp": "2026-11-05T13:00:43.450Z"
+        }
+      ]
     },
     {
       "sessionId": "sess-clinic-3919-1793883335327-e8vb",

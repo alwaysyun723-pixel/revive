@@ -975,7 +975,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-05T13:21:52.430Z",
-      "lastActiveAt": "2026-11-05T13:21:52.430Z",
+      "lastActiveAt": "2026-11-05T13:22:33.838Z",
       "totalDwellSeconds": 0,
       "tabDwellSeconds": {
         "home": 0,
@@ -985,7 +985,8 @@
         "calculator": 0
       },
       "tabSequence": [
-        "home"
+        "home",
+        "overview"
       ],
       "clickedItems": [
         {

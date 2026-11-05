@@ -969,6 +969,33 @@
   ],
   "accessLogs": [
     {
+      "sessionId": "sess-clinic-3919-1793884911106-mbt3",
+      "clinicSlug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T13:21:52.430Z",
+      "lastActiveAt": "2026-11-05T13:21:52.430Z",
+      "totalDwellSeconds": 0,
+      "tabDwellSeconds": {
+        "home": 0,
+        "overview": 0,
+        "events": 0,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home"
+      ],
+      "clickedItems": [
+        {
+          "type": "contact_action",
+          "label": "RBS 서윤 카카오톡(seoyun4) 연결 클릭",
+          "timestamp": "2026-11-05T13:21:52.430Z"
+        }
+      ]
+    },
+    {
       "sessionId": "sess-clinic-3919-1793884294196-jach",
       "clinicSlug": "clinic-3919",
       "clinicName": "기내의원",

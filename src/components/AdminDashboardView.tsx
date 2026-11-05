@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   RemodelingDatabase,
   AcademicFileItem,
@@ -52,11 +52,47 @@ function formatDuration(seconds: number): string {
   return `${mins}분 ${secs}초`;
 }
 
+const ADMIN_MASTER_PIN = "20170519";
+
 export default function AdminDashboardView({
   initialDb,
   initialAcademicFiles,
   academicDirPath,
 }: Props) {
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(false);
+  const [adminPinInput, setAdminPinInput] = useState<string>("");
+  const [adminPinError, setAdminPinError] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("remodeling_admin_unlocked");
+      if (saved === ADMIN_MASTER_PIN) {
+        setIsAdminUnlocked(true);
+      }
+    }
+  }, []);
+
+  const handleAdminPinSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminPinInput.trim() === ADMIN_MASTER_PIN) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("remodeling_admin_unlocked", ADMIN_MASTER_PIN);
+      }
+      setIsAdminUnlocked(true);
+      setAdminPinError("");
+    } else {
+      setAdminPinError("관리자 PIN 번호가 일치하지 않습니다.");
+    }
+  };
+
+  const handleAdminLock = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("remodeling_admin_unlocked");
+    }
+    setAdminPinInput("");
+    setIsAdminUnlocked(false);
+  };
+
   const [db, setDb] = useState<RemodelingDatabase>(initialDb);
   const [academicFiles, setAcademicFiles] = useState<AcademicFileItem[]>(initialAcademicFiles);
   const [activeAdminTab, setActiveAdminTab] = useState<AdminTab>("visual");
@@ -152,9 +188,19 @@ export default function AdminDashboardView({
     setDb(nextDb);
   };
 
+  const generateUniqueClinicPin = (): string => {
+    const usedPins = new Set(db.clinics.map((c) => c.pin.trim()));
+    usedPins.add(ADMIN_MASTER_PIN);
+    let candidate = String(Math.floor(1000 + Math.random() * 9000));
+    while (usedPins.has(candidate)) {
+      candidate = String(Math.floor(1000 + Math.random() * 9000));
+    }
+    return candidate;
+  };
+
   const handleCreateNewClinic = () => {
     const newId = `clinic-${Date.now()}`;
-    const randomPin = String(Math.floor(1000 + Math.random() * 9000));
+    const randomPin = generateUniqueClinicPin();
     const newSlug = `clinic-${randomPin}`;
     const newClinic: ClinicConfig = {
       id: newId,
@@ -187,12 +233,12 @@ export default function AdminDashboardView({
     const nextDb = { ...db, clinics: [newClinic, ...db.clinics] };
     setDb(nextDb);
     setEditingClinicId(newId);
-    persistDb(nextDb, `새 거래처 배포 페이지(/c/${newSlug}, PIN: ${randomPin})가 생성되었어요.`);
+    persistDb(nextDb, `새 거래처 페이지(고유 PIN: ${randomPin})가 생성되었어요.`);
   };
 
   const handleDuplicateClinic = (source: ClinicConfig) => {
     const newId = `clinic-${Date.now()}`;
-    const randomPin = String(Math.floor(1000 + Math.random() * 9000));
+    const randomPin = generateUniqueClinicPin();
     const newSlug = `${source.slug}-${randomPin}`;
     const cloned: ClinicConfig = {
       ...JSON.parse(JSON.stringify(source)),
@@ -207,7 +253,7 @@ export default function AdminDashboardView({
     const nextDb = { ...db, clinics: [cloned, ...db.clinics] };
     setDb(nextDb);
     setEditingClinicId(newId);
-    persistDb(nextDb, `${source.clinicName} 설정을 복제해 새 거래처 페이지를 만들었어요.`);
+    persistDb(nextDb, `${source.clinicName} 설정을 복제해 새 거래처(PIN: ${randomPin})를 만들었어요.`);
   };
 
   const handleToggleClinicActive = (clinic: ClinicConfig) => {
@@ -282,12 +328,12 @@ export default function AdminDashboardView({
 
   const handleCopyClinicShareMessage = (clinic: ClinicConfig) => {
     const base = getEffectiveBaseUrl();
-    const url = shortUrlsMap[clinic.id] || `${base}/${clinic.slug}`;
-    const shareText = `[Merz Aesthetics · Re:modeling 브리핑]\n\n${clinic.clinicName} ${clinic.directorName}님, 안녕하세요!\n멀츠 에스테틱스 코리아 ${db.repProfile.roleTitle} ${db.repProfile.name}입니다.\n\n${clinic.clinicName}을 위해 준비한 벨로테로 리바이브 강남·서초 시세 및 수익 계산기 페이지예요.\n\n▶ 전용 링크: ${url}\n▶ 비밀번호(PIN): ${clinic.pin}\n\n궁금하신 점이나 MEX 프로그램 신청은 페이지 내 버튼이나 카톡(ID: ${db.repProfile.kakaoId})으로 편하게 말씀해 주세요!`;
+    const url = shortUrlsMap[clinic.id] || base;
+    const shareText = `[Merz Aesthetics · Re:modeling Consulting Portal]\n\n${clinic.clinicName} ${clinic.directorName}님, 안녕하세요!\n멀츠 에스테틱스 코리아 ${db.repProfile.roleTitle} ${db.repProfile.name}입니다.\n\n${clinic.clinicName}을 위해 준비한 벨로테로 리바이브 강남·서초 트렌드 및 수익 시뮬레이터 포털입니다.\n\n▶ 접속 링크: ${url}\n▶ 전용 PIN 번호: ${clinic.pin}\n\n위 링크에서 PIN 번호(${clinic.pin})를 입력하시고 [Let's Revive]를 누르시면 ${clinic.clinicName} 전용 화면이 열립니다.`;
     navigator.clipboard.writeText(shareText);
     setCopiedId(clinic.id);
     setTimeout(() => setCopiedId(null), 2500);
-    showToast(`${clinic.clinicName} 카톡 초대 문구(${url})가 복사되었어요!`);
+    showToast(`${clinic.clinicName} 카톡 초대 문구(공통 링크 + 고유 PIN: ${clinic.pin})가 복사되었어요!`);
   };
 
   const handleAddCustomPackageToClinic = () => {
@@ -394,6 +440,65 @@ export default function AdminDashboardView({
     logClinicFilter === "all" ? true : log.clinicSlug === logClinicFilter
   );
 
+  // Admin Security PIN Lock Gate (Initial PIN: 20170519)
+  if (!isAdminUnlocked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#F0F7FF] via-[#E6F4FF] to-[#E3FAFC] flex flex-col justify-center items-center px-4 py-12 text-[#191F28]">
+        <div className="w-full max-w-[380px] bg-white rounded-[32px] p-8 text-center space-y-6 shadow-[0_20px_50px_rgba(0,118,255,0.12)] border border-blue-100">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3182F6] to-[#00A8E8] text-white flex items-center justify-center mx-auto shadow-md shadow-blue-500/20">
+            <Lock className="w-6 h-6" />
+          </div>
+
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-extrabold text-[#1B64DA] bg-[#E8F3FF] px-3 py-1 rounded-full">
+              RBS {db.repProfile.name} 전용
+            </span>
+            <h1 className="text-xl font-extrabold text-[#191F28] pt-1">
+              관리센터 보안 인증
+            </h1>
+            <p className="text-xs text-[#4E5968]">
+              담당자 전용 PIN 번호를 입력해 주세요.
+            </p>
+          </div>
+
+          <form onSubmit={handleAdminPinSubmit} className="space-y-4">
+            <input
+              type="password"
+              inputMode="numeric"
+              maxLength={12}
+              value={adminPinInput}
+              onChange={(e) => {
+                setAdminPinInput(e.target.value);
+                setAdminPinError("");
+              }}
+              placeholder="관리자 PIN 입력"
+              autoFocus
+              className="w-full text-center text-xl tracking-[0.25em] font-extrabold text-[#191F28] placeholder:text-[#8B95A1] placeholder:tracking-normal placeholder:font-bold placeholder:text-sm bg-[#F4F8FF] border border-[#CFE2FF] rounded-2xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-[#3182F6] transition"
+            />
+            {adminPinError && (
+              <p className="text-xs text-rose-500 font-bold">{adminPinError}</p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-[#3182F6] to-[#1B64DA] hover:opacity-95 text-white font-extrabold py-4 rounded-2xl transition active:scale-[0.98] text-sm shadow-md shadow-blue-500/20"
+            >
+              관리센터 입장
+            </button>
+          </form>
+
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#8B95A1] hover:text-[#1B64DA] transition"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>로그인 화면으로 돌아가기</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#EDF2F9] text-[#191F28] flex flex-col">
       {/* Top Toss-Style Admin Header */}
@@ -406,7 +511,7 @@ export default function AdminDashboardView({
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-extrabold text-base sm:text-lg tracking-tight text-white">
-                  Re:modeling 관리자 센터
+                  Re:modeling 관리센터
                 </h1>
                 <span className="text-xs bg-[#3182F6] px-2.5 py-0.5 rounded-full text-white font-bold">
                   {db.repProfile.roleTitle} {db.repProfile.name}
@@ -425,22 +530,21 @@ export default function AdminDashboardView({
               <Save className="w-4 h-4" />
               <span>{saving ? "저장 중..." : "💾 변경사항 즉시 저장"}</span>
             </button>
-            {editingClinic && (
-              <Link
-                href={`/c/${editingClinic.slug}`}
-                target="_blank"
-                className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-xs font-extrabold px-4 py-2.5 rounded-2xl flex items-center gap-1.5 transition shadow-sm"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>{editingClinic.clinicName} 배포 화면</span>
-              </Link>
-            )}
+            <button
+              type="button"
+              onClick={handleAdminLock}
+              className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3.5 py-2.5 rounded-2xl flex items-center gap-1.5 transition"
+              title="관리센터 다시 잠그기"
+            >
+              <Lock className="w-3.5 h-3.5 text-[#FEE500]" />
+              <span>관리센터 잠금</span>
+            </button>
             <Link
               href="/"
               className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3.5 py-2.5 rounded-2xl flex items-center gap-1.5 transition"
             >
-              <Lock className="w-3.5 h-3.5 text-[#FEE500]" />
-              <span>비공개 게이트웨이(/)</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>로그인 화면(/)</span>
             </Link>
           </div>
         </div>

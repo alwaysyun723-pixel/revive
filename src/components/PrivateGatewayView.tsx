@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { RemodelingDatabase } from "@/types/remodeling";
-import { Lock, ShieldCheck, Phone, MessageCircle, ArrowRight, Settings } from "lucide-react";
+import { Phone, MessageCircle, Settings, LogIn, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -12,9 +12,9 @@ interface Props {
 
 export default function PrivateGatewayView({ db }: Props) {
   const router = useRouter();
-  const [selectedSlug, setSelectedSlug] = useState<string>("");
   const [pinInput, setPinInput] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [kakaoCopied, setKakaoCopied] = useState<boolean>(false);
 
   const activeClinics = db.clinics.filter((c) => c.isActive !== false);
 
@@ -24,30 +24,20 @@ export default function PrivateGatewayView({ db }: Props) {
 
     const trimmedPin = pinInput.trim();
     if (!trimmedPin) {
-      setErrorMsg("전달받으신 보안 PIN 번호를 입력해 주세요.");
+      setErrorMsg("부여받으신 PIN 번호를 입력해 주세요.");
       return;
     }
 
-    // If a specific clinic is selected, verify against that clinic
-    if (selectedSlug) {
-      const target = activeClinics.find((c) => c.slug === selectedSlug);
-      if (!target) {
-        setErrorMsg("현재 접속 권한이 비활성화된 병원입니다. 담당자에게 문의해 주세요.");
-        return;
+    // If admin enters the master admin PIN (20170519) directly, unlock and go to /admin
+    if (trimmedPin === "20170519") {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("remodeling_admin_unlocked", "20170519");
       }
-      if (target.pin.trim() === trimmedPin) {
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem(`remodeling_unlocked_${target.slug}`, target.pin.trim());
-        }
-        router.push(`/c/${target.slug}`);
-        return;
-      } else {
-        setErrorMsg("선택하신 병원의 보안 PIN 번호가 일치하지 않습니다.");
-        return;
-      }
+      router.push("/admin");
+      return;
     }
 
-    // Otherwise, match by unique PIN across active clinics
+    // Match clinic by unique PIN across active clinics
     const matchedClinic = activeClinics.find((c) => c.pin.trim() === trimmedPin);
     if (matchedClinic) {
       if (typeof window !== "undefined") {
@@ -56,142 +46,186 @@ export default function PrivateGatewayView({ db }: Props) {
           matchedClinic.pin.trim()
         );
       }
-      router.push(`/c/${matchedClinic.slug}`);
+      router.push(`/${matchedClinic.slug}`);
     } else {
-      setErrorMsg("유효하지 않은 PIN 번호이거나 접속 권한이 부여되지 않았습니다.");
+      setErrorMsg("등록되지 않은 PIN 번호이거나 접속 권한이 없습니다.");
+    }
+  };
+
+  const handleKakaoClick = () => {
+    if (typeof window !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(db.repProfile.kakaoId);
+    }
+    setKakaoCopied(true);
+    setTimeout(() => setKakaoCopied(false), 2500);
+    if (db.repProfile.kakaoOpenChatUrl) {
+      window.open(db.repProfile.kakaoOpenChatUrl, "_blank", "noopener,noreferrer");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#1B3A6B] to-[#3182F6] flex flex-col justify-between items-center px-4 py-10 text-white">
-      {/* Top Brand Header */}
-      <div className="w-full max-w-md flex items-center justify-between">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#F0F7FF] via-[#E6F4FF] to-[#E3FAFC] flex flex-col justify-between items-center px-4 py-7 text-[#191F28]">
+      {/* Subtle Revive Aqua-Glow Background Orbs */}
+      <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-gradient-to-br from-[#3182F6]/20 to-[#00B4D8]/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-28 -right-24 w-[28rem] h-[28rem] rounded-full bg-gradient-to-tr from-[#00A8E8]/20 to-[#38D9A9]/15 blur-3xl" />
+
+      {/* Top Minimal Brand Header */}
+      <div className="w-full max-w-md flex items-center justify-between relative z-10">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-white text-[#1B64DA] font-extrabold flex items-center justify-center text-base shadow-md">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#3182F6] to-[#00A8E8] text-white font-extrabold flex items-center justify-center text-sm shadow-sm shadow-blue-500/20">
             R
           </div>
           <div>
-            <span className="font-extrabold text-base tracking-tight block leading-none">
+            <span className="font-extrabold text-sm tracking-tight text-[#191F28] block leading-none">
               {db.siteContent.brandTitle}
             </span>
-            <span className="text-[11px] text-blue-200 font-semibold">
-              Merz Aesthetics Private B2B Portal
+            <span className="text-[10px] text-[#3182F6] font-bold tracking-wide">
+              Merz Aesthetics Consulting Portal
             </span>
           </div>
         </div>
+
+        {/* Smaller, Minimal '관리센터' Button */}
         <Link
           href="/admin"
-          className="text-xs font-extrabold bg-white/15 hover:bg-white/25 text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5 backdrop-blur-sm transition"
+          className="text-[11px] font-bold text-[#4E5968] hover:text-[#1B64DA] bg-white/75 hover:bg-white border border-blue-100 px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-sm backdrop-blur-sm transition"
         >
-          <Settings className="w-3.5 h-3.5" />
-          <span>담당자 관리 센터</span>
+          <Settings className="w-3 h-3 text-[#3182F6]" />
+          <span>관리센터</span>
         </Link>
       </div>
 
-      {/* Center Private Access Card */}
-      <div className="w-full max-w-md bg-white text-[#191F28] rounded-[32px] p-8 sm:p-9 shadow-2xl space-y-6 my-8">
+      {/* Center Belotero Revive Inspired Friendly & Minimal Login Card */}
+      <div className="w-full max-w-[400px] bg-white/90 backdrop-blur-xl border border-white rounded-[32px] p-8 sm:p-9 shadow-[0_20px_50px_rgba(0,118,255,0.1)] space-y-6 my-auto relative z-10">
+        {/* Belotero Revive Dual-Droplet (HA + Glycerol) + Login Illustration */}
         <div className="flex flex-col items-center text-center space-y-3">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#E8F3FF] to-[#CFE2FF] text-[#3182F6] flex items-center justify-center shadow-inner">
-            <Lock className="w-7 h-7" />
+          <div className="relative w-20 h-20 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-[26px] bg-gradient-to-br from-[#E8F3FF] via-[#D0EBFF] to-[#E3FAFC] shadow-inner" />
+            {/* Revive Hydro-Booster Droplet + Key/Portal SVG Illustration */}
+            <svg
+              viewBox="0 0 80 80"
+              className="w-14 h-14 relative z-10 drop-shadow-sm"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient id="reviveDropGrad" x1="15" y1="10" x2="65" y2="70" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#3182F6" />
+                  <stop offset="0.55" stopColor="#00A8E8" />
+                  <stop offset="1" stopColor="#00C471" />
+                </linearGradient>
+                <linearGradient id="reviveGlowGrad" x1="25" y1="20" x2="55" y2="60" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#FFFFFF" stopOpacity="0.9" />
+                  <stop offset="1" stopColor="#E8F3FF" stopOpacity="0.2" />
+                </linearGradient>
+              </defs>
+              {/* Main Revive Water Droplet */}
+              <path
+                d="M40 10C40 10 18 34.5 18 50C18 62.1503 27.8497 72 40 72C52.1503 72 62 62.1503 62 50C62 34.5 40 10 40 10Z"
+                fill="url(#reviveDropGrad)"
+              />
+              {/* Inner Shine / Glycerol Dual Circle */}
+              <path
+                d="M31 44C28.5 49 30 56 35 59"
+                stroke="url(#reviveGlowGrad)"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+              />
+              {/* Friendly Login Keyhole / Sparkle inside Droplet */}
+              <circle cx="40" cy="47" r="5.5" fill="white" />
+              <path
+                d="M37.5 51L36 60H44L42.5 51H37.5Z"
+                fill="white"
+              />
+              {/* Top Sparkle */}
+              <path
+                d="M59 16L60.5 20.5L65 22L60.5 23.5L59 28L57.5 23.5L53 22L57.5 20.5L59 16Z"
+                fill="#00A8E8"
+              />
+            </svg>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#1B64DA] bg-[#E8F3FF] px-3.5 py-1 rounded-full">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            불특정 다수 열람 제한 · 초대 전용 공간
-          </span>
-          <h1 className="text-2xl font-extrabold text-[#191F28] leading-snug pt-1">
-            공유받으신 전용 링크 또는
+
+          <div className="space-y-1">
+            <span className="inline-block text-[11px] font-extrabold tracking-wider text-[#00A8E8] bg-[#E3FAFC] px-3 py-0.5 rounded-full">
+              BELOTERO REVIVE®
+            </span>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#191F28] tracking-tight pt-0.5">
+              Re:modeling
+            </h1>
+          </div>
+
+          <p className="text-xs text-[#4E5968] leading-relaxed font-medium px-1">
+            본 페이지는 <strong className="text-[#1B64DA] font-extrabold">Merz Aesthetics RBS ({db.repProfile.name})</strong> 가
             <br />
-            보안 PIN 번호로 입장해 주세요
-          </h1>
-          <p className="text-xs text-[#4E5968] leading-relaxed">
-            본 페이지는 멀츠 에스테틱스 담당자(<strong>{db.repProfile.roleTitle} {db.repProfile.name}</strong>)가
-            URL과 접속 권한을 부여한 거래처 원장님께만 공개됩니다.
+            URL과 접속 권한을 부여한 분께만 공개됩니다.
           </p>
         </div>
 
+        {/* Single Clean PIN Input Form (No Clinic Dropdown) */}
         <form onSubmit={handleGatewaySubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="block text-xs font-extrabold text-[#4E5968]">
-              거래처 선택 (선택사항 · PIN 번호만 입력해도 자동 연결)
-            </label>
-            <select
-              value={selectedSlug}
-              onChange={(e) => {
-                setSelectedSlug(e.target.value);
-                setErrorMsg("");
-              }}
-              className="w-full text-sm font-bold text-[#191F28] bg-[#F2F4F6] border border-slate-200 rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
-            >
-              <option value="">병원 선택 없이 PIN 번호로 바로 입장</option>
-              {activeClinics.map((c) => (
-                <option key={c.id} value={c.slug}>
-                  {c.clinicName} ({c.directorName}님 전용)
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block text-xs font-extrabold text-[#4E5968]">
-              부여받으신 보안 PIN 번호 입력
-            </label>
+          <div className="space-y-2">
             <input
               type="password"
+              inputMode="numeric"
               maxLength={8}
               value={pinInput}
               onChange={(e) => {
                 setPinInput(e.target.value);
                 setErrorMsg("");
               }}
-              placeholder="••••"
+              placeholder="PIN 번호 입력"
               autoFocus
-              className="w-full text-center text-3xl tracking-[0.45em] font-extrabold text-[#191F28] bg-[#F2F4F6] border border-slate-200 rounded-2xl py-4 focus:outline-none focus:ring-2 focus:ring-[#3182F6] transition"
+              className="w-full text-center text-lg sm:text-xl tracking-[0.25em] font-extrabold text-[#191F28] placeholder:text-[#8B95A1] placeholder:tracking-normal placeholder:font-bold placeholder:text-sm bg-[#F4F8FF] border border-[#CFE2FF] rounded-2xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-[#3182F6] focus:bg-white transition"
             />
           </div>
 
           {errorMsg && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold px-4 py-3 rounded-2xl text-center">
+            <div className="bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold px-4 py-2.5 rounded-2xl text-center">
               {errorMsg}
             </div>
           )}
 
+          {/* Let's Revive Login Button with Login Graphic */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-[#3182F6] to-[#1B64DA] hover:from-[#1B64DA] hover:to-[#1550B0] text-white font-extrabold py-4 rounded-2xl transition active:scale-[0.99] text-sm shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-[#3182F6] via-[#1B64DA] to-[#00A8E8] hover:opacity-95 text-white font-extrabold py-4 rounded-2xl transition active:scale-[0.98] text-base shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2.5"
           >
-            <span>전용 브리핑 페이지 입장하기</span>
-            <ArrowRight className="w-4 h-4" />
+            <LogIn className="w-5 h-5 stroke-[2.5]" />
+            <span>Let&apos;s Revive</span>
           </button>
         </form>
 
-        {/* Rep Contact Footer inside Card */}
-        <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#4E5968]">
-          <div>
-            <span className="font-extrabold text-[#191F28]">
-              전용 링크 / PIN 문의: {db.repProfile.roleTitle} {db.repProfile.name}
-            </span>
-            <p className="text-[11px] text-[#8B95A1]">{db.repProfile.phone}</p>
-          </div>
+        {/* Minimal Contact Row: Only '문의' + Phone & Kakao Icons */}
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+          <span className="text-xs font-extrabold text-[#8B95A1]">문의</span>
+
           <div className="flex items-center gap-2">
+            {kakaoCopied && (
+              <span className="text-[11px] font-bold text-[#1B64DA] bg-[#E8F3FF] px-2.5 py-1 rounded-lg flex items-center gap-1 animate-fade-in">
+                <Check className="w-3 h-3" /> 카톡 ID({db.repProfile.kakaoId}) 복사됨
+              </span>
+            )}
             <a
               href={`tel:${db.repProfile.phone}`}
-              className="bg-[#E8F3FF] text-[#1B64DA] font-extrabold px-3 py-2 rounded-xl flex items-center gap-1 hover:bg-[#CFE2FF] transition"
+              title={`전화 문의 (${db.repProfile.phone})`}
+              className="w-9 h-9 rounded-xl bg-[#E8F3FF] hover:bg-[#CFE2FF] text-[#1B64DA] flex items-center justify-center transition active:scale-95"
             >
-              <Phone className="w-3.5 h-3.5" />
-              <span>전화</span>
+              <Phone className="w-4 h-4" />
             </a>
-            <span className="bg-[#FEE500] text-[#191F28] font-extrabold px-3 py-2 rounded-xl flex items-center gap-1">
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>카톡 ID: {db.repProfile.kakaoId}</span>
-            </span>
+            <button
+              type="button"
+              onClick={handleKakaoClick}
+              title={`카카오톡 문의 (ID: ${db.repProfile.kakaoId})`}
+              className="w-9 h-9 rounded-xl bg-[#FEE500] hover:bg-[#FDD800] text-[#191F28] flex items-center justify-center transition active:scale-95 shadow-sm"
+            >
+              <MessageCircle className="w-4 h-4 fill-[#191F28]" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Bottom Notice */}
-      <div className="text-center text-xs text-blue-200/80 space-y-1">
-        <p>※ 각 병원별 전용 링크(<code>/c/병원코드</code>)로 접속하시면 해당 병원 맞춤 화면으로 바로 연결됩니다.</p>
-      </div>
+      {/* Empty bottom spacer for balanced vertical centering (no bottom text) */}
+      <div className="h-4" />
     </div>
   );
 }

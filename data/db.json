@@ -939,14 +939,14 @@
       "directorName": "김원장",
       "deviceType": "PC",
       "startedAt": "2026-11-05T11:01:45.502Z",
-      "lastActiveAt": "2026-11-05T11:58:57.823Z",
-      "totalDwellSeconds": 3047,
+      "lastActiveAt": "2026-11-05T12:15:22.821Z",
+      "totalDwellSeconds": 4032,
       "tabDwellSeconds": {
         "home": 42,
         "overview": 125,
         "events": 5,
         "packages": 5,
-        "calculator": 2870
+        "calculator": 3855
       },
       "tabSequence": [
         "home",

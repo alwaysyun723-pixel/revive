@@ -49,7 +49,7 @@
       "title": "샘플 지원 & 발룬티어 참관",
       "subtitle": "원내 테스트 시술 + 프로토콜 가이드",
       "description": "샘플을 지원해드리고, 원내 발룬티어 시술 시 참관하여 가이드를 안내해드려요.",
-      "badge": "💉 샘플 + 참관",
+      "badge": "💉 데모",
       "buttonText": "샘플·참관 신청하기",
       "enabled": true,
       "isPendingConfirm": false,
@@ -522,6 +522,100 @@
   ],
   "clinics": [
     {
+      "id": "clinic-1793883417091",
+      "slug": "clinic-9995",
+      "clinicName": "신규 거래처 의원",
+      "directorName": "대표원장",
+      "pin": "9995",
+      "isActive": true,
+      "customGreeting": "원장님, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
+      "heroHeadline": "신규 거래처 원장님을 위한 리바이브 핵심 브리핑",
+      "heroSubtext": "히알루론산과 글리세롤을 결합한 듀얼 스킨부스터, 벨로테로 리바이브의 핵심만 모았어요.",
+      "visibleTabs": {
+        "home": true,
+        "overview": true,
+        "events": true,
+        "packages": true,
+        "calculator": true
+      },
+      "simulatorDefaults": {
+        "unitCost": 135000,
+        "sellingPrice": 440000,
+        "purchaseQty": 30,
+        "patientsPerCc": [
+          2,
+          8,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "selectedEventIds": [
+        "ev-toxnfill-gn",
+        "ev-rejuel-gn",
+        "ev-drevers-gn",
+        "ev-theia-gn",
+        "ev-toxnfill-sn",
+        "ev-abijou-gn",
+        "ev-arna-ap",
+        "ev-newve-ss",
+        "ev-4ever-gn"
+      ],
+      "customPackages": [],
+      "createdAt": "2026-11-05T12:56:57.091Z",
+      "updatedAt": "2026-11-05T12:56:57.091Z"
+    },
+    {
+      "id": "clinic-1793883161654",
+      "slug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "pin": "0519",
+      "isActive": true,
+      "customGreeting": "삼식씨, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
+      "heroHeadline": "기내의원 원장님을 위한 리바이브 핵심 브리핑",
+      "heroSubtext": "히알루론산과 글리세롤을 결합한 듀얼 스킨부스터, 벨로테로 리바이브의 핵심만 모았어요.",
+      "visibleTabs": {
+        "home": true,
+        "overview": true,
+        "events": true,
+        "packages": true,
+        "calculator": true
+      },
+      "simulatorDefaults": {
+        "unitCost": 135000,
+        "sellingPrice": 440000,
+        "purchaseQty": 30,
+        "patientsPerCc": [
+          2,
+          8,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "selectedEventIds": [
+        "ev-toxnfill-gn",
+        "ev-rejuel-gn",
+        "ev-drevers-gn",
+        "ev-theia-gn",
+        "ev-toxnfill-sn",
+        "ev-abijou-gn",
+        "ev-arna-ap",
+        "ev-newve-ss",
+        "ev-4ever-gn"
+      ],
+      "customPackages": [],
+      "createdAt": "2026-11-05T12:52:41.654Z",
+      "updatedAt": "2026-11-05T12:56:13.463Z"
+    },
+    {
       "id": "clinic-toxnfill-gn",
       "slug": "toxnfill-gn",
       "clinicName": "톡스앤필 강남본점",
@@ -875,6 +969,96 @@
   ],
   "accessLogs": [
     {
+      "sessionId": "sess-toxnfill-gn-1793883805281-m090",
+      "clinicSlug": "toxnfill-gn",
+      "clinicName": "톡스앤필 강남본점",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T13:03:25.636Z",
+      "lastActiveAt": "2026-11-05T13:03:25.636Z",
+      "totalDwellSeconds": 1,
+      "tabDwellSeconds": {
+        "home": 1,
+        "overview": 0,
+        "events": 0,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home"
+      ],
+      "clickedItems": []
+    },
+    {
+      "sessionId": "sess-clinic-3919-1793883614903-9sn2",
+      "clinicSlug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T13:00:15.150Z",
+      "lastActiveAt": "2026-11-05T13:00:43.450Z",
+      "totalDwellSeconds": 1,
+      "tabDwellSeconds": {
+        "home": 1,
+        "overview": 0,
+        "events": 0,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home"
+      ],
+      "clickedItems": [
+        {
+          "type": "contact_action",
+          "label": "RBS 서윤 카카오톡(seoyun4) 연결 클릭",
+          "timestamp": "2026-11-05T13:00:43.450Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "sess-clinic-3919-1793883335327-e8vb",
+      "clinicSlug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T12:55:35.678Z",
+      "lastActiveAt": "2026-11-05T12:55:35.678Z",
+      "totalDwellSeconds": 1,
+      "tabDwellSeconds": {
+        "home": 1,
+        "overview": 0,
+        "events": 0,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home"
+      ],
+      "clickedItems": []
+    },
+    {
+      "sessionId": "sess-clinic-3919-1793883273070-hcld",
+      "clinicSlug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T12:54:33.161Z",
+      "lastActiveAt": "2026-11-05T12:54:33.161Z",
+      "totalDwellSeconds": 1,
+      "tabDwellSeconds": {
+        "home": 1,
+        "overview": 0,
+        "events": 0,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home"
+      ],
+      "clickedItems": []
+    },
+    {
       "sessionId": "sess-theia-gn-1793877148441-588y",
       "clinicSlug": "theia-gn",
       "clinicName": "테이아의원 강남본점",
@@ -939,7 +1123,7 @@
       "directorName": "김원장",
       "deviceType": "PC",
       "startedAt": "2026-11-05T11:01:45.502Z",
-      "lastActiveAt": "2026-11-05T12:49:58.098Z",
+      "lastActiveAt": "2026-11-05T13:05:43.300Z",
       "totalDwellSeconds": 4827,
       "tabDwellSeconds": {
         "home": 42,

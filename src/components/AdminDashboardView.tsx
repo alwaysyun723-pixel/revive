@@ -339,6 +339,71 @@ export default function AdminDashboardView({
     setTimeout(() => setCopiedId(null), 2500);
   };
 
+  const [decodingQr, setDecodingQr] = useState<boolean>(false);
+
+  const handleKakaoQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setDecodingQr(true);
+    try {
+      let decodedUrl = "";
+
+      // 1. Try browser native BarcodeDetector if available
+      if (typeof window !== "undefined" && "BarcodeDetector" in window) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const detector = new (window as any).BarcodeDetector({ formats: ["qr_code"] });
+          const bitmap = await createImageBitmap(file);
+          const codes = await detector.detect(bitmap);
+          if (codes?.[0]?.rawValue) {
+            decodedUrl = String(codes[0].rawValue).trim();
+          }
+        } catch {
+          // Fallback to API below
+        }
+      }
+
+      // 2. Fallback to QR Server Read API
+      if (!decodedUrl) {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("https://api.qrserver.com/v1/read-qr-code/", {
+          method: "POST",
+          body: fd,
+        });
+        const data = await res.json();
+        const raw = data?.[0]?.symbol?.[0]?.data;
+        if (raw) {
+          decodedUrl = String(raw).trim();
+        }
+      }
+
+      if (decodedUrl && decodedUrl.startsWith("http")) {
+        const nextDb = {
+          ...db,
+          repProfile: {
+            ...db.repProfile,
+            kakaoOpenChatUrl: decodedUrl,
+          },
+        };
+        setDb(nextDb);
+        await persistDb(
+          nextDb,
+          `내 카톡 프로필 직통 링크(${decodedUrl})가 QR에서 자동 추출되어 연동되었어요!`
+        );
+      } else {
+        alert(
+          "QR 코드에서 링크를 찾지 못했습니다. 카카오톡 [내 프로필 → 우측 상단 QR코드] 이미지를 선택하시거나 링크를 직접 입력해 주세요."
+        );
+      }
+    } catch {
+      alert("QR 이미지 분석 중 오류가 발생했습니다. 링크를 직접 입력해 주세요.");
+    } finally {
+      setDecodingQr(false);
+      e.target.value = "";
+    }
+  };
+
   const handleOpenClinicPage = async (clinic: ClinicConfig) => {
     const cleanSlug = clinic.slug.trim();
     const cleanPin = clinic.pin.trim();
@@ -822,55 +887,50 @@ export default function AdminDashboardView({
                 </div>
               )}
 
-              {/* Row 3: Corporate Security / Network Compatibility Domain Switcher */}
-              <div className="bg-[#E8F3FF]/60 border border-[#B6D8FF] rounded-2xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+              {/* Row 3: KakaoTalk Profile Direct Link & QR Auto-Extractor */}
+              <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-2xl px-3.5 py-2.5 flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 text-xs">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-extrabold text-[#1B64DA]">
-                    🌐 접속 환경별 주소 모드:
+                  <span className="font-extrabold text-[#191F28] bg-[#FEE500] px-2.5 py-1 rounded-lg">
+                    💬 카톡 아이콘 클릭 시 내 프로필 바로 뜨게 연동:
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setPublicBaseUrl("https://3c0d1865f1f281.lhr.life")}
-                    className={`px-3 py-1 rounded-lg font-extrabold transition ${
-                      publicBaseUrl.includes("lhr.life")
-                        ? "bg-[#3182F6] text-white"
-                        : "bg-white text-[#4E5968] border border-blue-200"
-                    }`}
-                  >
-                    1) 회사 보안 노트북·아이폰 공용 (표준 TLS: 3c0d1865f1f281.lhr.life)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPublicBaseUrl(
-                        "https://targets-cottages-consideration-ing.trycloudflare.com"
-                      )
-                    }
-                    className={`px-3 py-1 rounded-lg font-extrabold transition ${
-                      publicBaseUrl.includes("trycloudflare")
-                        ? "bg-[#3182F6] text-white"
-                        : "bg-white text-[#4E5968] border border-blue-200"
-                    }`}
-                  >
-                    2) 아이폰·외부 LTE 보조 링크 (Cloudflare)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPublicBaseUrl("http://192.168.45.205:3000")}
-                    className={`px-3 py-1 rounded-lg font-extrabold transition ${
-                      publicBaseUrl.includes("192.168.")
-                        ? "bg-[#3182F6] text-white"
-                        : "bg-white text-[#4E5968] border border-blue-200"
-                    }`}
-                  >
-                    3) 동일 와이파이 초단축 숫자 주소 (192.168.45.205:3000)
-                  </button>
+                  <span className="text-[#4E5968] font-medium">
+                    카카오톡 앱 [내 프로필 → 우측 상단 QR코드 저장] 이미지를 올리거나 오픈채팅/QR 링크를 넣으면 카톡 아이콘 클릭 시 바로 내 프로필이 뜹니다.
+                  </span>
                 </div>
-                {editingClinic && (
-                  <span className="font-mono font-bold text-[#1B64DA]">
-                    현재 단축 경로: {getEffectiveBaseUrl()}/{editingClinic.slug} (또는 /1 ~ /5)
-                  </span>
-                )}
+
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <label className="cursor-pointer bg-[#FEE500] hover:bg-[#FDD800] text-[#191F28] font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>
+                      {decodingQr ? "QR 링크 추출 중..." : "📷 내 카톡 프로필 QR 이미지 업로드"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleKakaoQrUpload}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <input
+                    type="text"
+                    value={db.repProfile.kakaoOpenChatUrl || ""}
+                    onChange={(e) =>
+                      setDb({
+                        ...db,
+                        repProfile: {
+                          ...db.repProfile,
+                          kakaoOpenChatUrl: e.target.value,
+                        },
+                      })
+                    }
+                    onBlur={() =>
+                      persistDb(db, "카카오톡 프로필 직통 링크가 자동 저장되었어요!")
+                    }
+                    placeholder="또는 http://qr.kakao.com/talk/... 직접 붙여넣기"
+                    className="w-64 sm:w-72 text-xs font-mono bg-white border border-amber-300 rounded-xl px-3 py-1.5 text-[#191F28]"
+                  />
+                </div>
               </div>
             </div>
           </div>

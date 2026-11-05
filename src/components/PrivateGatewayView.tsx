@@ -79,9 +79,24 @@ export default function PrivateGatewayView({ db }: Props) {
       navigator.clipboard.writeText(db.repProfile.kakaoId);
     }
     setKakaoCopied(true);
-    setTimeout(() => setKakaoCopied(false), 2500);
-    if (db.repProfile.kakaoOpenChatUrl) {
-      window.open(db.repProfile.kakaoOpenChatUrl, "_blank", "noopener,noreferrer");
+    setTimeout(() => setKakaoCopied(false), 3000);
+
+    if (typeof window === "undefined") return;
+
+    const directProfileUrl = db.repProfile.kakaoOpenChatUrl?.trim();
+    if (directProfileUrl) {
+      // Directly launches KakaoTalk app and opens the bound KakaoTalk profile (qr.kakao.com/talk/... or open.kakao.com/...)
+      window.location.href = directProfileUrl;
+      return;
+    }
+
+    // Launch KakaoTalk app directly on iPhone / Android / PC
+    const ua = navigator.userAgent || "";
+    if (/android/i.test(ua)) {
+      window.location.href =
+        "intent://main#Intent;scheme=kakaotalk;package=com.kakao.talk;end";
+    } else {
+      window.location.href = "kakaotalk://launch";
     }
   };
 

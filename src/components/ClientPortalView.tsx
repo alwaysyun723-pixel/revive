@@ -250,7 +250,9 @@ export default function ClientPortalView({
   };
 
   const handleOpenKakaoConnect = () => {
-    navigator.clipboard.writeText(db.repProfile.kakaoId);
+    if (typeof window !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(db.repProfile.kakaoId);
+    }
     setCopiedField("kakao");
     setTimeout(() => setCopiedField(null), 2500);
     sendLogUpdate({
@@ -259,7 +261,21 @@ export default function ClientPortalView({
         label: `RBS ${db.repProfile.name} 카카오톡(${db.repProfile.kakaoId}) 연결 클릭`,
       },
     });
+    const directUrl = db.repProfile.kakaoOpenChatUrl?.trim();
+    if (directUrl && typeof window !== "undefined") {
+      window.location.href = directUrl;
+      return;
+    }
     setKakaoModalOpen(true);
+    if (typeof window !== "undefined") {
+      const ua = navigator.userAgent || "";
+      if (/android/i.test(ua)) {
+        window.location.href =
+          "intent://main#Intent;scheme=kakaotalk;package=com.kakao.talk;end";
+      } else {
+        window.location.href = "kakaotalk://launch";
+      }
+    }
   };
 
   const handlePinSubmit = (e: React.FormEvent) => {

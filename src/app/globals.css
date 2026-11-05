@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+:root {
+  --toss-bg: #f2f4f6;
+  --toss-blue: #3182f6;
+  --toss-blue-light: #e8f3ff;
+  --toss-navy: #191f28;
+  --toss-gray-700: #4e5968;
+  --toss-gray-500: #8b95a1;
+  --toss-mint: #00c471;
+}
+
+body {
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  background-color: #f2f4f6;
+  color: #191f28;
+  letter-spacing: -0.02em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Toss-style soft card shadow */
+.toss-card {
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.toss-card-hover {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.toss-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.07);
+}
+
+/* Custom Range Slider Styling */
+input[type="range"] {
+  height: 8px;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+/* Hide scrollbar for clean pill nav */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}

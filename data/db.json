@@ -1,0 +1,800 @@
+{
+  "repProfile": {
+    "roleTitle": "RBS",
+    "name": "서윤",
+    "division": "Merz Aesthetics Korea",
+    "phone": "010-4631-7925",
+    "email": "yun.seo@merz.co.kr",
+    "kakaoId": "seoyun4",
+    "kakaoOpenChatUrl": "",
+    "kakaoWebhookToken": "",
+    "customWebhookUrl": "",
+    "tagline": "벨로테로 리바이브 도입부터 원내 셀링까지 편하게 문의주세요.",
+    "greetingDefault": "원장님, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요."
+  },
+  "merzActivities": [
+    {
+      "id": "act-mex-talk",
+      "code": "MEX-TALK",
+      "title": "시술 시연 영상 받아보기",
+      "subtitle": "카톡으로 편하게 보는 시술 테크닉",
+      "description": "원하시는 부위의 실제 시술 영상을 카카오톡으로 바로 보내드려요.",
+      "badge": "🎬 비대면 영상",
+      "buttonText": "영상 신청하기",
+      "enabled": true,
+      "isPendingConfirm": false,
+      "highlights": [
+        "카톡 즉시 전송",
+        "부위별 주입 팁"
+      ]
+    },
+    {
+      "id": "act-mex-pro",
+      "code": "MEX-PRO",
+      "title": "원내 방문 제품·셀링 교육",
+      "subtitle": "원장님·상담실장님 맞춤 교육",
+      "description": "담당자가 직접 방문해 제품 핵심과 환자 상담 스크립트를 안내해드려요.",
+      "badge": "👩‍🏫 방문 교육",
+      "buttonText": "방문 교육 신청하기",
+      "enabled": true,
+      "isPendingConfirm": false,
+      "highlights": [
+        "상담 화법 제공",
+        "런치·오전 타임 가능"
+      ]
+    },
+    {
+      "id": "act-mex-tailored",
+      "code": "MEX-TAILORED",
+      "title": "샘플 지원 & 발룬티어 참관",
+      "subtitle": "원내 테스트 시술 + 프로토콜 가이드",
+      "description": "샘플을 지원해드리고, 원내 발룬티어 시술 시 참관하여 가이드를 안내해드려요.",
+      "badge": "💉 샘플 + 참관",
+      "buttonText": "샘플·참관 신청하기",
+      "enabled": true,
+      "isPendingConfirm": false,
+      "highlights": [
+        "테스트 샘플 지원",
+        "원내 프로토콜 세팅"
+      ]
+    },
+    {
+      "id": "act-sales-seminar",
+      "code": "Sales Seminar",
+      "title": "세일즈 & 학술 세미나",
+      "subtitle": "키닥터 임상 & 병원 매출 세미나",
+      "description": "세부 일정 확정 시 가장 먼저 카카오톡으로 안내해드려요.",
+      "badge": "📅 일정 확인중",
+      "buttonText": "사전 알림 신청",
+      "enabled": true,
+      "isPendingConfirm": true,
+      "pendingNote": "관리자 페이지에서 언제든 문구와 일정을 수정할 수 있어요.",
+      "highlights": [
+        "성공 도입 사례",
+        "일정 최우선 안내"
+      ]
+    }
+  ],
+  "siteContent": {
+    "brandTitle": "Re:modeling",
+    "brandSubtitle": "Belotero® Revive Briefing",
+    "tabLabels": {
+      "home": "HOME",
+      "overview": "About Revive",
+      "events": "강남·서초 Trend",
+      "packages": "Package 현황",
+      "calculator": "Profit 시뮬레이터"
+    },
+    "homeSection": {
+      "badgeText": "💧 벨로테로 리바이브 브리핑",
+      "defaultHeadline": "속건조는 36주 잡고, 병원 마진은 확실하게 높여요",
+      "defaultSubheadline": "히알루론산과 글리세롤을 결합한 듀얼 스킨부스터, 벨로테로 리바이브의 핵심만 모았어요.",
+      "highlights": [
+        {
+          "title": "듀얼 보습 성분",
+          "metric": "HA + 글리세롤",
+          "desc": "수분을 끌어당기고 증발까지 막아줘요"
+        },
+        {
+          "title": "오래가는 유지력",
+          "metric": "최대 36주",
+          "desc": "3회 시술 시 9개월간 촉촉함이 유지돼요"
+        },
+        {
+          "title": "빠른 원가 회수",
+          "metric": "2cc 5명 = BEP",
+          "desc": "30cc 도입 시 5명만 시술해도 원가 회수 끝"
+        }
+      ],
+      "activitySectionTitle": "원장님께 필요한 지원을 골라보세요",
+      "activitySectionSubtitle": "버튼을 누르면 서윤 담당자 카톡(seoyun4)으로 바로 알림이 가요"
+    },
+    "overviewSection": {
+      "badgeText": "✨ 제품 핵심 요약",
+      "title": "왜 벨로테로 리바이브인가요?",
+      "subtitle": "히알루론산에 천연 보습인자 글리세롤을 더해 즉각적인 물광과 긴 유지력을 동시에 잡았어요.",
+      "haTitle": "CPM® 다밀도 히알루론산",
+      "haSpec": "20 mg/mL",
+      "haDesc": "진피 깊은 곳까지 뭉침 없이 고르게 퍼져 수분을 가득 채워줘요.",
+      "glycerolTitle": "고농축 글리세롤",
+      "glycerolSpec": "17.5 mg/mL",
+      "glycerolDesc": "수분 통로(AQP3)를 깨우고 보습막을 씌워 속건조와 붉은기를 빠르게 잡아줘요.",
+      "clinicalMetrics": [
+        {
+          "label": "수분감 지속 기간",
+          "value": "36주",
+          "subtext": "최대 9개월 유지",
+          "description": "3회 시술 기준 최대 36주 보습 임상 확인"
+        },
+        {
+          "label": "환자 만족도",
+          "value": "90%+",
+          "subtext": "높은 재시술 의향",
+          "description": "빠른 피부결·광채 체감으로 높은 만족도"
+        },
+        {
+          "label": "홍조 · 붉은기",
+          "value": "감소",
+          "subtext": "피부 장벽 강화",
+          "description": "열감·예민해진 피부의 붉은기 완화"
+        },
+        {
+          "label": "통증 · 엠보싱",
+          "value": "최소화",
+          "subtext": "빠른 일상 복귀",
+          "description": "기존 부스터 대비 적은 통증과 엠보싱"
+        }
+      ],
+      "differentiationPoints": [
+        {
+          "title": "시술 직후 빠른 물광 체감",
+          "desc": "글리세롤 덕분에 수일 내로 촉촉함과 화장 잘 먹는 피부를 바로 느껴요.",
+          "comparisonTag": "빠른 효과"
+        },
+        {
+          "title": "통증에 민감한 고객에게 딱 맞아요",
+          "desc": "리쥬란 등의 통증·엠보싱이 부담스러웠던 고객층을 쉽게 흡수해요.",
+          "comparisonTag": "적은 통증"
+        },
+        {
+          "title": "울쎄라·레이저 후처치에 최고예요",
+          "desc": "열에너지 시술 후 생기는 속건조와 붉은기를 동시에 잡아줘요.",
+          "comparisonTag": "리프팅 시너지"
+        }
+      ],
+      "protocols": [
+        {
+          "name": "1cc 가벼운 시작",
+          "cc": 1,
+          "desc": "눈밑·입가 잔주름 또는 더마톡신 결합",
+          "targetArea": "눈가 · 입가 · 나비존",
+          "cycle": "1회 또는 4주 간격 3회"
+        },
+        {
+          "name": "2cc 표준 풀페이스",
+          "cc": 2,
+          "desc": "양볼 1cc씩 가장 만족도 높은 기본 용량",
+          "targetArea": "양볼 전체",
+          "cycle": "4주 간격 3회 권장"
+        },
+        {
+          "name": "3cc 프리미엄 케어",
+          "cc": 3,
+          "desc": "양볼 2cc + 눈밑·입술 1cc 디테일 케어",
+          "targetArea": "풀페이스 + 국소부위",
+          "cycle": "4주 간격 3회"
+        },
+        {
+          "name": "4cc 집중 리모델링",
+          "cc": 4,
+          "desc": "얼굴 전체 + 목주름까지 고용량 부스팅",
+          "targetArea": "풀페이스 + 목",
+          "cycle": "웨딩 · VIP 집중 케어"
+        }
+      ],
+      "academicSectionTitle": "학술 논문 & 시술 가이드 자료실",
+      "academicSectionSubtitle": "폴더에 넣은 파일이 실시간으로 연동돼요. 클릭해서 바로 확인해보세요."
+    },
+    "eventsSection": {
+      "badgeText": "📍 강남 · 서초 실시간 시세",
+      "title": "강남·서초 병원들은 이렇게 운영 중이에요",
+      "subtitle": "지정 4대 병원과 AI가 찾은 강남·서초 병원들의 실제 이벤트 가격이에요.",
+      "networkGroupTitle": "대형 · 네트워크 의원 (강남역 · 신논현)",
+      "networkGroupDesc": "1cc 35~39만원으로 유입 후 2cc(65~69만원)로 전환하는 곳이 많아요.",
+      "premiumGroupTitle": "프리미엄 클리닉 (청담 · 압구정 · 신사 · 강남)",
+      "premiumGroupDesc": "AI 피부진단이나 울쎄라·보톡스 결합으로 2cc 70~75만원대를 유지해요.",
+      "insightCallout": "💡 강남·서초 평균 시세는 1cc 39만원 / 2cc 68만원 선으로 마진율이 매우 우수해요."
+    },
+    "packagesSection": {
+      "badgeText": "🎁 객단가 높이는 추천 조합",
+      "title": "단독보다 패키지로 묶을 때 더 잘 팔려요",
+      "subtitle": "멀츠 라인업(울쎄라·제오민·레디어스)이나 원내 장비와 결합한 인기 구성이에요.",
+      "merzSynergyTitle": "멀츠 시너지 베스트 조합",
+      "merzSynergySubtitle": "리프팅·톡신 시술 만족도를 2배 높이는 전·후처치 패키지",
+      "marketPopularTitle": "강남·서초 인기 결합 상품",
+      "marketPopularSubtitle": "원내 보유 장비(LDM, 레이저)와 바로 묶기 좋은 구성",
+      "customProposalTitle": "우리 병원 맞춤 추천 패키지",
+      "customProposalSubtitle": "원장님 병원 상황에 맞춰 바로 도입하실 수 있는 추천 가격표예요."
+    },
+    "calculatorSection": {
+      "badgeText": "🧮 실시간 수익 시뮬레이터",
+      "title": "우리 병원 예상 수익을 계산해보세요",
+      "subtitle": "슬라이더를 움직이면 월 순수익과 원가 회수 시점(BEP)이 바로 계산돼요."
+    }
+  },
+  "benchmarkEvents": [
+    {
+      "id": "ev-toxnfill-gn",
+      "clinicName": "톡스앤필 강남본점",
+      "branchName": "강남역 11번 출구",
+      "district": "강남역/신논현",
+      "group": "network",
+      "isDesignated": true,
+      "isAiDiscovered": false,
+      "price1cc": 390000,
+      "price2cc": 660000,
+      "price3cc": 950000,
+      "regularPrice1cc": 590000,
+      "eventTitle": "벨로테로 리바이브 런칭 특가 이벤트",
+      "copyKeywords": [
+        "1cc 39만원",
+        "2cc 다용량 할인",
+        "카톡특가"
+      ],
+      "comboDetails": "1cc/2cc 단독 특가 및 스킨보톡스 결합 운영",
+      "eventUrl": "https://www.toxnfill1.com/",
+      "updatedAt": "2026-11-05"
+    },
+    {
+      "id": "ev-rejuel-gn",
+      "clinicName": "리쥬엘의원 강남점",
+      "branchName": "강남역 인근",
+      "district": "강남역/신논현",
+      "group": "premium",
+      "isDesignated": true,
+      "isAiDiscovered": false,
+      "price1cc": 390000,
+      "price2cc": 690000,
+      "price3cc": 990000,
+      "regularPrice1cc": 550000,
+      "eventTitle": "하이드로 글로우 리바이브 & 울쎄라 결합전",
+      "copyKeywords": [
+        "울쎄라 시너지",
+        "속건조 36주",
+        "정품인증"
+      ],
+      "comboDetails": "울쎄라 프라임/덴서티 리프팅 후처치 보습 패키지",
+      "eventUrl": "http://www.rejuel.com/",
+      "updatedAt": "2026-11-05"
+    },
+    {
+      "id": "ev-drevers-gn",
+      "clinicName": "닥터에버스의원 강남점",
+      "branchName": "신논현역 인근",
+      "district": "강남역/신논현",
+      "group": "network",
+      "isDesignated": true,
+      "isAiDiscovered": false,
+      "price1cc": 380000,
+      "price2cc": 680000,
+      "price3cc": 960000,
+      "regularPrice1cc": 500000,
+      "eventTitle": "벨로테로 리바이브 NEW 런칭 특별전",
+      "copyKeywords": [
+        "NEW 런칭",
+        "정품·정량",
+        "물광·탄력"
+      ],
+      "comboDetails": "스킨보톡스·레이저 토닝 결합 패키지 상시 운영",
+      "eventUrl": "https://www.drevers.com/",
+      "updatedAt": "2026-11-05"
+    },
+    {
+      "id": "ev-theia-gn",
+      "clinicName": "테이아의원 강남본점",
+      "branchName": "강남역 10번 출구",
+      "district": "강남역/신논현",
+      "group": "premium",
+      "isDesignated": true,
+      "isAiDiscovered": false,
+      "price1cc": 420000,
+      "price2cc": 750000,
+      "price3cc": 1050000,
+      "regularPrice1cc": 580000,
+      "eventTitle": "AI 피부진단(더마코드) + 1:1 커스텀 리바이브",
+      "copyKeywords": [
+        "AI 피부진단",
+        "1:1 맞춤주입",
+        "프리미엄"
+      ],
+      "comboDetails": "AI 피부 분석 후 수분 부족 부위별 정밀 디자인",
+      "eventUrl": "https://theiaclinic.co.kr/",
+      "updatedAt": "2026-11-05"
+    },
+    {
+      "id": "ev-toxnfill-sn",
+      "clinicName": "톡스앤필 신논현점",
+      "branchName": "신논현역 3번 출구",
+      "district": "강남역/신논현",
+      "group": "network",
+      "isDesignated": false,
+      "isAiDiscovered": true,
+      "price1cc": 390000,
+      "price2cc": 660000,
+      "price3cc": null,
+      "regularPrice1cc": 590000,
+      "eventTitle": "벨로테로 리바이브 1cc / 2cc 집중 보습 특가",
+      "copyKeywords": [
+        "즉각 물광",
+        "저엠보싱",
+        "2cc 추천"
+      ],
+      "comboDetails": "1cc 39만원 / 2cc 66만원으로 2cc 업셀링 유도",
+      "eventUrl": "https://www.toxnfill9.com/",
+      "updatedAt": "2026-11-05"
+    },
+    {
+      "id": "ev-abijou-gn",
+      "clinicName": "아비쥬의원 강남점",
+      "branchName": "서초/강남역",
+      "district": "서초/교대",
+      "group": "network",
+      "isDesignated": false,
+      "isAiDiscovered": true,
+      "price1cc": 350000,
+      "price2cc": 650000,
+      "price3cc": 920000,
+      "regularPrice1cc": 490000,
+      "eventTitle": "듀얼 부스터 리바이브 시즌 이벤트",
+      "copyKeywords": [
+        "LDM 결합",
+        "속건조 해결",
+        "첫방문 혜택"
+      ],
+      "comboDetails": "리바이브 시술 후 LDM 진정 관리 결합 구성",
+      "eventUrl": "https://www.abijouonline.com/",
+      "updatedAt": "2026-11-05"
+    },
+    {
+      "id": "ev-arna-ap",
+      "clinicName": "아르나의원",
+      "branchName": "압구정역",
+      "district": "청담/압구정",
+      "group": "premium",
+      "isDesignated": false,
+      "isAiDiscovered": true,
+      "price1cc": 385000,
+      "price2cc": 720000,
+      "price3cc": 1020000,
+      "regularPrice1cc": 550000,
+      "eventTitle": "리바이브 1cc + 스킨보톡스 3cc 패키지",
+      "copyKeywords": [
+        "스킨보톡스 결합",
+        "VAT 포함",
+        "압구정"
+      ],
+      "comboDetails": "리바이브 1cc + 스킨보톡스 3cc 38.5만원 시그니처",
+      "eventUrl": "https://pf.kakao.com/",
+      "updatedAt": "2026-11-05"
+    },
+    {
+      "id": "ev-newve-ss",
+      "clinicName": "뉴브의원",
+      "branchName": "신사/강남",
+      "district": "신사/논현",
+      "group": "premium",
+      "isDesignated": false,
+      "isAiDiscovered": true,
+      "price1cc": 400000,
+      "price2cc": 740000,
+      "price3cc": 1050000,
+      "regularPrice1cc": 550000,
+      "eventTitle": "속건조·장벽 리모델링 프리미엄 프로그램",
+      "copyKeywords": [
+        "핸드 인젝션",
+        "홍조 케어",
+        "3회 티켓팅"
+      ],
+      "comboDetails": "4주 간격 3회 정규 프로그램 티켓팅 주력",
+      "eventUrl": "http://newve-skinclinic.co.kr/",
+      "updatedAt": "2026-11-05"
+    },
+    {
+      "id": "ev-4ever-gn",
+      "clinicName": "포에버의원 강남점",
+      "branchName": "강남/신사",
+      "district": "신사/논현",
+      "group": "network",
+      "isDesignated": false,
+      "isAiDiscovered": true,
+      "price1cc": 390000,
+      "price2cc": 690000,
+      "price3cc": 980000,
+      "regularPrice1cc": 520000,
+      "eventTitle": "리바이브 + LDM 물방울 리프팅 결합 특가",
+      "copyKeywords": [
+        "엠보싱 케어",
+        "수분 광채",
+        "직장인 추천"
+      ],
+      "comboDetails": "리바이브 2cc + LDM + 모델링팩 올인원 구성",
+      "eventUrl": "https://www.4-ever.co.kr/",
+      "updatedAt": "2026-11-05"
+    }
+  ],
+  "packageTemplates": [
+    {
+      "id": "pkg-merz-1",
+      "category": "merz-synergy",
+      "name": "울쎄라® + 리바이브 2cc",
+      "tagline": "리프팅 후 건조함 없이 촉촉한 탄력 완성",
+      "composition": [
+        "울쎄라 300샷",
+        "리바이브 2cc",
+        "진정 관리"
+      ],
+      "targetConcern": "리프팅과 물광을 동시에 원하는 VIP 고객",
+      "recommendedPrice": 1890000,
+      "regularPrice": 2400000,
+      "synergyPoint": "울쎄라 열감·속건조를 리바이브가 즉시 잡아줘 만족도가 아주 높아요.",
+      "badge": "🔥 베스트 시너지"
+    },
+    {
+      "id": "pkg-merz-2",
+      "category": "merz-synergy",
+      "name": "제오민® 스킨보톡스 + 리바이브 2cc",
+      "tagline": "모공·잔주름·속건조를 한 번에 잡는 유리알 패키지",
+      "composition": [
+        "리바이브 2cc",
+        "제오민 더마톡신",
+        "LDM 12분"
+      ],
+      "targetConcern": "웨딩·중요 일정 앞둔 고객",
+      "recommendedPrice": 790000,
+      "regularPrice": 990000,
+      "synergyPoint": "시술 3~5일 만에 즉각적인 거울 광채가 올라와 재결제율 1위 조합이에요.",
+      "badge": "✨ 재결제 1위"
+    },
+    {
+      "id": "pkg-merz-3",
+      "category": "merz-synergy",
+      "name": "레디어스® + 리바이브 2cc",
+      "tagline": "코어 콜라겐 재생과 수분 장벽의 입체 복원",
+      "composition": [
+        "레디어스 1시린지",
+        "리바이브 2cc",
+        "애프터케어"
+      ],
+      "targetConcern": "피부가 얇고 건조한 안티에이징 고객",
+      "recommendedPrice": 1450000,
+      "regularPrice": 1850000,
+      "synergyPoint": "시술 직후 물광부터 9개월 장기 탄력까지 빈틈없이 채워줘요.",
+      "badge": "💎 하이엔드"
+    },
+    {
+      "id": "pkg-mkt-1",
+      "category": "market-popular",
+      "name": "리바이브 2cc + LDM 물방울 관리",
+      "tagline": "강남권에서 가장 많이 운영하는 기본 스테디셀러",
+      "composition": [
+        "리바이브 2cc",
+        "LDM 수분모드",
+        "진정 팩"
+      ],
+      "targetConcern": "통증 적고 빠른 일상복귀 원하는 직장인",
+      "recommendedPrice": 690000,
+      "regularPrice": 880000,
+      "synergyPoint": "LDM이 엠보싱과 붉은기를 빠르게 가라앉혀 초진 유입용으로 최고예요.",
+      "badge": "👍 강남 최다 운영"
+    },
+    {
+      "id": "pkg-mkt-2",
+      "category": "market-popular",
+      "name": "홍조·장벽 리셋 (혈관레이저 + 리바이브)",
+      "tagline": "글리세롤의 홍조 완화 효과를 살린 특화 상품",
+      "composition": [
+        "리바이브 2cc",
+        "홍조/토닝 레이저 1회",
+        "장벽 크림"
+      ],
+      "targetConcern": "붉은기·열감·환절기 속건조 고객",
+      "recommendedPrice": 850000,
+      "regularPrice": 1100000,
+      "synergyPoint": "레이저 단독 시술보다 붉은기 진정과 촉촉함이 훨씬 오래가요.",
+      "badge": "🌿 홍조·장벽 특화"
+    },
+    {
+      "id": "pkg-mkt-3",
+      "category": "market-popular",
+      "name": "36주 유지 리바이브 3회 멤버십",
+      "tagline": "1회 체험 고객을 3회 티켓팅으로 연결하는 고수익 상품",
+      "composition": [
+        "리바이브 2cc × 3회",
+        "매회 진정관리 포함",
+        "눈밑 1cc 할인권"
+      ],
+      "targetConcern": "9개월간 물광 피부를 유지하고 싶은 고객",
+      "recommendedPrice": 1850000,
+      "regularPrice": 2370000,
+      "synergyPoint": "'3회 시술 = 36주 유지' 임상 데이터를 근거로 상담실에서 전환하기 쉬워요.",
+      "badge": "💳 3회 티켓팅"
+    }
+  ],
+  "clinics": [
+    {
+      "id": "clinic-demo-1",
+      "slug": "cheongdam-ace",
+      "clinicName": "청담에이스의원",
+      "directorName": "김원장",
+      "pin": "1234",
+      "customGreeting": "김원장님! 지난 미팅 때 말씀드린 강남·청담 리바이브 시세와 청담에이스의원 맞춤 수익 시뮬레이션을 보기 편하게 정리했어요.",
+      "heroHeadline": "청담에이스의원 김원장님을 위한 리바이브 핵심 브리핑",
+      "heroSubtext": "복잡한 내용 없이 시세·패키지·수익률만 한눈에 확인해보세요.",
+      "visibleTabs": {
+        "home": true,
+        "overview": true,
+        "events": true,
+        "packages": true,
+        "calculator": true
+      },
+      "simulatorDefaults": {
+        "unitCost": 135000,
+        "sellingPrice": 440000,
+        "purchaseQty": 30,
+        "patientsPerCc": [
+          2,
+          8,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "selectedEventIds": [
+        "ev-toxnfill-gn",
+        "ev-rejuel-gn",
+        "ev-drevers-gn",
+        "ev-theia-gn",
+        "ev-arna-ap",
+        "ev-newve-ss"
+      ],
+      "customPackages": [
+        {
+          "id": "cust-pkg-1",
+          "category": "custom",
+          "name": "울쎄라 300샷 + 리바이브 2cc 수분리프팅",
+          "tagline": "청담에이스 주력 리프팅 고객 업셀링 패키지",
+          "composition": [
+            "울쎄라 300샷",
+            "리바이브 2cc",
+            "제오민 나비존"
+          ],
+          "targetConcern": "리프팅 직후 건조함 없이 즉각 물광을 원하는 고객",
+          "recommendedPrice": 1790000,
+          "regularPrice": 2250000,
+          "synergyPoint": "원가 27만원(2cc) 투입으로 패키지 객단가와 만족도를 크게 높여요.",
+          "badge": "⭐ 청담에이스 맞춤"
+        },
+        {
+          "id": "cust-pkg-2",
+          "category": "custom",
+          "name": "리바이브 2cc + LDM 하이드로 글로우",
+          "tagline": "1회 체험 후 3회 정규 티켓팅으로 이어지는 앵커 상품",
+          "composition": [
+            "리바이브 2cc (양볼)",
+            "LDM 12분"
+          ],
+          "targetConcern": "통증 적고 빠른 속건조 개선을 원하는 고객",
+          "recommendedPrice": 720000,
+          "regularPrice": 900000,
+          "synergyPoint": "1회 시술당 순수익 45만원이 남는 고마진 주력 상품이에요.",
+          "badge": "💙 권장 도입 수가"
+        }
+      ],
+      "createdAt": "2026-11-05T09:00:00+09:00",
+      "updatedAt": "2026-11-05T16:30:00+09:00"
+    },
+    {
+      "id": "clinic-demo-2",
+      "slug": "gangnam-prime",
+      "clinicName": "강남프라임의원",
+      "directorName": "이원장",
+      "pin": "0000",
+      "customGreeting": "이원장님! 강남역 주변 병원 이벤트 가격과 50cc 도입 시 예상 순수익을 한눈에 보실 수 있게 준비했어요.",
+      "heroHeadline": "강남프라임의원 이원장님을 위한 리바이브 브리핑",
+      "heroSubtext": "강남역 상권 시세 비교부터 우리 병원 마진 계산까지 바로 확인해보세요.",
+      "visibleTabs": {
+        "home": true,
+        "overview": true,
+        "events": true,
+        "packages": true,
+        "calculator": true
+      },
+      "simulatorDefaults": {
+        "unitCost": 135000,
+        "sellingPrice": 390000,
+        "purchaseQty": 50,
+        "patientsPerCc": [
+          4,
+          15,
+          4,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "selectedEventIds": [
+        "ev-toxnfill-gn",
+        "ev-rejuel-gn",
+        "ev-drevers-gn",
+        "ev-theia-gn",
+        "ev-toxnfill-sn",
+        "ev-abijou-gn",
+        "ev-4ever-gn"
+      ],
+      "customPackages": [
+        {
+          "id": "cust-pkg-gn-1",
+          "category": "custom",
+          "name": "리바이브 1cc 체험 / 2cc 집중 물광 특가",
+          "tagline": "1cc로 가볍게 유입시켜 상담실에서 2cc로 전환하는 구성",
+          "composition": [
+            "1cc 38만원",
+            "2cc 66만원",
+            "스킨보톡스 추가 +5만원"
+          ],
+          "targetConcern": "강남역 2030 속건조·수분광채 고객",
+          "recommendedPrice": 660000,
+          "regularPrice": 880000,
+          "synergyPoint": "2cc 시술 시 환자 1명당 순수익 39만원을 확보할 수 있어요.",
+          "badge": "⭐ 강남프라임 맞춤"
+        }
+      ],
+      "createdAt": "2026-11-05T10:00:00+09:00",
+      "updatedAt": "2026-11-05T16:30:00+09:00"
+    }
+  ],
+  "activityApplications": [
+    {
+      "id": "app-sample-1",
+      "clinicSlug": "cheongdam-ace",
+      "clinicName": "청담에이스의원",
+      "directorName": "김원장",
+      "activityId": "act-mex-tailored",
+      "activityCode": "MEX-TAILORED",
+      "activityTitle": "샘플 지원 & 발룬티어 참관",
+      "preferredDate": "다음주 수요일 오후 2시",
+      "contactPhone": "010-****-1234",
+      "requestNote": "원내 실장님 발룬티어로 2cc 테스트 시술 희망합니다.",
+      "createdAt": "2026-11-05T15:20:00+09:00",
+      "status": "접수완료",
+      "kakaoNotified": true
+    }
+  ],
+  "accessLogs": [
+    {
+      "sessionId": "sess-cheongdam-ace-1793874889453-mysi",
+      "clinicSlug": "cheongdam-ace",
+      "clinicName": "청담에이스의원",
+      "directorName": "김원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T10:34:49.469Z",
+      "lastActiveAt": "2026-11-05T10:42:53.992Z",
+      "totalDwellSeconds": 431,
+      "tabDwellSeconds": {
+        "home": 401,
+        "overview": 25,
+        "events": 5,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home",
+        "events",
+        "packages",
+        "events",
+        "overview",
+        "home",
+        "overview",
+        "home"
+      ],
+      "clickedItems": [
+        {
+          "type": "academic_file",
+          "label": "학술자료 열람: BELOVE 임상 논문 — 36주 수분·홍조·피부결 개선 결과",
+          "timestamp": "2026-11-05T10:36:07.795Z"
+        },
+        {
+          "type": "academic_file",
+          "label": "학술자료 열람: 히알루론산 + 글리세롤 듀얼 보습 기전 한눈에 보기",
+          "timestamp": "2026-11-05T10:36:12.134Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "sess-cheongdam-ace-1793874769433-f6w5",
+      "clinicSlug": "cheongdam-ace",
+      "clinicName": "청담에이스의원",
+      "directorName": "김원장",
+      "deviceType": "Mobile",
+      "startedAt": "2026-11-05T10:33:44.985Z",
+      "lastActiveAt": "2026-11-05T10:42:55.029Z",
+      "totalDwellSeconds": 352,
+      "tabDwellSeconds": {
+        "home": 107,
+        "overview": 0,
+        "events": 245,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "events",
+        "home"
+      ],
+      "clickedItems": []
+    },
+    {
+      "sessionId": "sess-sample-1",
+      "clinicSlug": "cheongdam-ace",
+      "clinicName": "청담에이스의원",
+      "directorName": "김원장",
+      "deviceType": "Tablet",
+      "startedAt": "2026-11-05T15:14:10+09:00",
+      "lastActiveAt": "2026-11-05T15:21:05+09:00",
+      "totalDwellSeconds": 415,
+      "tabDwellSeconds": {
+        "home": 55,
+        "overview": 80,
+        "events": 110,
+        "packages": 45,
+        "calculator": 125
+      },
+      "tabSequence": [
+        "home",
+        "overview",
+        "events",
+        "calculator",
+        "packages",
+        "home"
+      ],
+      "clickedItems": [
+        {
+          "type": "academic_file",
+          "label": "BELOVE 36주 임상 요약 열람",
+          "timestamp": "2026-11-05T15:15:40+09:00"
+        },
+        {
+          "type": "event_link",
+          "label": "테이아의원 강남본점 이벤트 페이지 이동",
+          "timestamp": "2026-11-05T15:17:12+09:00"
+        },
+        {
+          "type": "activity_apply",
+          "label": "MEX-TAILORED 신청 완료",
+          "timestamp": "2026-11-05T15:20:00+09:00"
+        }
+      ]
+    }
+  ],
+  "academicFileMeta": {
+    "Belotero_Revive_Clinical_Summary_BELOVE_Study.html": {
+      "displayName": "BELOVE 임상 논문 — 36주 수분·홍조·피부결 개선 결과",
+      "category": "📄 핵심 임상 논문",
+      "description": "3회 시술 후 최대 36주 수분 유지 및 90% 만족도 데이터 요약"
+    },
+    "Belotero_Revive_Dual_Action_Mechanism_Guide.html": {
+      "displayName": "히알루론산 + 글리세롤 듀얼 보습 기전 한눈에 보기",
+      "category": "💧 성분·기전 가이드",
+      "description": "글리세롤의 장벽 보호 원리와 기존 부스터 대비 차별점"
+    },
+    "Belotero_Revive_Injection_Protocol_Manual.html": {
+      "displayName": "부위별(1cc~4cc) 권장 시술 용량 & 결합 프로토콜",
+      "category": "💉 시술 매뉴얼",
+      "description": "원장님·스태프 참고용 부위별 주입 가이드"
+    }
+  }
+}

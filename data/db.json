@@ -528,8 +528,8 @@
       "directorName": "대표원장",
       "pin": "0519",
       "isActive": true,
-      "customGreeting": "원장님, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
-      "heroHeadline": "신규 거래처 원장님을 위한 리바이브 핵심 브리핑",
+      "customGreeting": "삼식씨, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
+      "heroHeadline": "기내의원 원장님을 위한 리바이브 핵심 브리핑",
       "heroSubtext": "히알루론산과 글리세롤을 결합한 듀얼 스킨부스터, 벨로테로 리바이브의 핵심만 모았어요.",
       "visibleTabs": {
         "home": true,
@@ -566,7 +566,7 @@
       ],
       "customPackages": [],
       "createdAt": "2026-11-05T12:52:41.654Z",
-      "updatedAt": "2026-11-05T12:54:23.994Z"
+      "updatedAt": "2026-11-05T12:54:59.401Z"
     },
     {
       "id": "clinic-toxnfill-gn",

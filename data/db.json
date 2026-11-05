@@ -975,7 +975,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-05T13:11:34.995Z",
-      "lastActiveAt": "2026-11-05T13:11:34.995Z",
+      "lastActiveAt": "2026-11-05T13:11:36.154Z",
       "totalDwellSeconds": 1,
       "tabDwellSeconds": {
         "home": 1,
@@ -987,7 +987,13 @@
       "tabSequence": [
         "home"
       ],
-      "clickedItems": []
+      "clickedItems": [
+        {
+          "type": "contact_action",
+          "label": "RBS 서윤 카카오톡(seoyun4) 연결 클릭",
+          "timestamp": "2026-11-05T13:11:36.154Z"
+        }
+      ]
     },
     {
       "sessionId": "sess-toxnfill-gn-1793883805281-m090",

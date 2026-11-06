@@ -426,7 +426,7 @@
     {
       "id": "pkg-merz-1",
       "category": "merz-synergy",
-      "name": "울쎄라® + 리바이브 2cc",
+      "name": "",
       "tagline": "리프팅 후 건조함 없이 촉촉한 탄력 완성",
       "composition": [
         "울쎄라 300샷",
@@ -521,6 +521,53 @@
     }
   ],
   "clinics": [
+    {
+      "id": "clinic-1793935306372",
+      "slug": "clinic-2753",
+      "clinicName": "신규 거래처 의원",
+      "directorName": "대표원장",
+      "pin": "2753",
+      "isActive": true,
+      "customGreeting": "원장님, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
+      "heroHeadline": "신규 거래처 원장님을 위한 리바이브 핵심 브리핑",
+      "heroSubtext": "히알루론산과 글리세롤을 결합한 듀얼 스킨부스터, 벨로테로 리바이브의 핵심만 모았어요.",
+      "visibleTabs": {
+        "home": true,
+        "overview": true,
+        "events": true,
+        "packages": true,
+        "calculator": true
+      },
+      "simulatorDefaults": {
+        "unitCost": 135000,
+        "sellingPrice": 440000,
+        "purchaseQty": 30,
+        "patientsPerCc": [
+          2,
+          8,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "selectedEventIds": [
+        "ev-toxnfill-gn",
+        "ev-rejuel-gn",
+        "ev-drevers-gn",
+        "ev-theia-gn",
+        "ev-toxnfill-sn",
+        "ev-abijou-gn",
+        "ev-arna-ap",
+        "ev-newve-ss",
+        "ev-4ever-gn"
+      ],
+      "customPackages": [],
+      "createdAt": "2026-11-06T03:21:46.372Z",
+      "updatedAt": "2026-11-06T03:21:46.372Z"
+    },
     {
       "id": "clinic-1793883417091",
       "slug": "clinic-9995",

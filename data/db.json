@@ -1040,8 +1040,9 @@
       "contactPhone": "",
       "requestNote": "ㅇㅇ",
       "createdAt": "2026-11-05T11:13:06.504Z",
-      "status": "접수완료",
-      "kakaoNotified": false
+      "status": "진행완료",
+      "kakaoNotified": false,
+      "completedAt": "2026-11-06T10:28:00.457Z"
     },
     {
       "id": "app-sample-1",

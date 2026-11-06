@@ -1061,27 +1061,6 @@
   ],
   "accessLogs": [
     {
-      "sessionId": "sess-clinic-2753-1793960164868-xabl",
-      "clinicSlug": "clinic-2753",
-      "clinicName": "신규 거래처 의원",
-      "directorName": "대표원장",
-      "deviceType": "PC",
-      "startedAt": "2026-11-06T10:16:05.148Z",
-      "lastActiveAt": "2026-11-06T10:16:05.148Z",
-      "totalDwellSeconds": 1,
-      "tabDwellSeconds": {
-        "home": 1,
-        "overview": 0,
-        "events": 0,
-        "packages": 0,
-        "calculator": 0
-      },
-      "tabSequence": [
-        "home"
-      ],
-      "clickedItems": []
-    },
-    {
       "sessionId": "sess-toxnfill-gn-1793934986883-fmzc",
       "clinicSlug": "toxnfill-gn",
       "clinicName": "톡스앤필 강남본점",

@@ -40,6 +40,8 @@ export interface ActivityApplication {
   contactPhone: string;
   requestNote: string;
   createdAt: string;
+  completedAt?: string;
+  adminMemo?: string;
   status: "접수완료" | "일정조율중" | "진행완료";
   kakaoNotified: boolean;
 }

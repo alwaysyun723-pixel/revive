@@ -34,6 +34,8 @@ import {
   Bell,
   CheckCircle2,
   ArrowLeft,
+  X,
+  ArrowUpDown,
 } from "lucide-react";
 
 interface Props {
@@ -115,6 +117,26 @@ export default function AdminDashboardView({
   // Log clinic filter
   const [logClinicFilter, setLogClinicFilter] = useState<string>("all");
   const [refreshingLogs, setRefreshingLogs] = useState<boolean>(false);
+
+  // Activity applications view ("pending" = 진행중 신청내역 뷰, "completed" = 완료내역 뷰, "both" = 상하 동시 보기)
+  const [activityViewMode, setActivityViewMode] = useState<"pending" | "completed" | "both">(
+    "pending"
+  );
+  // Filters & sorting for Pending Activity Applications View (신청 내역 뷰)
+  const [pendingActTypeFilter, setPendingActTypeFilter] = useState<string>("all");
+  const [pendingStatusFilter, setPendingStatusFilter] = useState<string>("all");
+  const [pendingSearchQuery, setPendingSearchQuery] = useState<string>("");
+  const [pendingSortBy, setPendingSortBy] = useState<
+    "date_desc" | "date_asc" | "activity" | "status" | "clinic"
+  >("date_desc");
+
+  // Filters & sorting for Completed Activity Applications View (완료 내역 뷰)
+  const [completedActTypeFilter, setCompletedActTypeFilter] = useState<string>("all");
+  const [completedStatusFilter, setCompletedStatusFilter] = useState<string>("all");
+  const [completedSearchQuery, setCompletedSearchQuery] = useState<string>("");
+  const [completedSortBy, setCompletedSortBy] = useState<
+    "date_desc" | "date_asc" | "activity" | "status" | "clinic"
+  >("date_desc");
 
   // AI Search state
   const [aiQuery, setAiQuery] = useState<string>("");
@@ -524,6 +546,159 @@ export default function AdminDashboardView({
     logClinicFilter === "all" ? true : log.clinicSlug === logClinicFilter
   );
 
+  const handleUpdateActivityStatus = (
+    appId: string,
+    nextStatus: "접수완료" | "일정조율중" | "진행완료"
+  ) => {
+    const nextApps = db.activityApplications.map((a) =>
+      a.id === appId
+        ? {
+            ...a,
+            status: nextStatus,
+            completedAt:
+              nextStatus === "진행완료" ? new Date().toISOString() : a.completedAt,
+          }
+        : a
+    );
+    const nextDb = { ...db, activityApplications: nextApps };
+    setDb(nextDb);
+    persistDb(
+      nextDb,
+      nextStatus === "진행완료"
+        ? "✅ 진행완료 처리되어 [완료 내역 뷰]로 이동되었어요!"
+        : `진행 상태가 [${nextStatus}]로 변경되었어요.`
+    );
+  };
+
+  const handleUpdateActivityAdminMemo = (appId: string, adminMemo: string) => {
+    const nextApps = db.activityApplications.map((a) =>
+      a.id === appId ? { ...a, adminMemo } : a
+    );
+    const nextDb = { ...db, activityApplications: nextApps };
+    setDb(nextDb);
+  };
+
+  const handleDeleteActivityApplication = (
+    appId: string,
+    clinicName: string,
+    activityCode: string
+  ) => {
+    const nextApps = db.activityApplications.filter((a) => a.id !== appId);
+    const nextDb = { ...db, activityApplications: nextApps };
+    setDb(nextDb);
+    persistDb(
+      nextDb,
+      `${clinicName}의 [${activityCode}] 신청 내역이 삭제되었어요.`
+    );
+  };
+
+  const activityTypeOptions = React.useMemo(() => {
+    const baseCodes = db.merzActivities.map((m) => ({
+      code: m.code,
+      title: m.title,
+    }));
+    const existingCodes = new Set(baseCodes.map((b) => b.code));
+    db.activityApplications.forEach((a) => {
+      if (a.activityCode && !existingCodes.has(a.activityCode)) {
+        existingCodes.add(a.activityCode);
+        baseCodes.push({
+          code: a.activityCode,
+          title: a.activityTitle || a.activityCode,
+        });
+      }
+    });
+    return baseCodes;
+  }, [db.merzActivities, db.activityApplications]);
+
+  const filterAndSortApps = (
+    list: typeof db.activityApplications,
+    actFilter: string,
+    statusFilter: string,
+    searchQuery: string,
+    sortBy: "date_desc" | "date_asc" | "activity" | "status" | "clinic"
+  ) => {
+    const q = searchQuery.trim().toLowerCase();
+    const filtered = list.filter((item) => {
+      if (actFilter !== "all" && item.activityCode !== actFilter) {
+        return false;
+      }
+      if (statusFilter !== "all" && item.status !== statusFilter) {
+        return false;
+      }
+      if (q) {
+        const searchable = [
+          item.clinicName,
+          item.directorName,
+          item.activityCode,
+          item.activityTitle,
+          item.preferredDate,
+          item.contactPhone,
+          item.requestNote,
+          item.adminMemo || "",
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!searchable.includes(q)) return false;
+      }
+      return true;
+    });
+
+    const statusOrder: Record<string, number> = {
+      접수완료: 1,
+      일정조율중: 2,
+      진행완료: 3,
+    };
+
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "date_asc") {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
+      if (sortBy === "activity") {
+        return (
+          a.activityCode.localeCompare(b.activityCode, "ko") ||
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+      if (sortBy === "status") {
+        return (
+          (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99) ||
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+      if (sortBy === "clinic") {
+        return (
+          a.clinicName.localeCompare(b.clinicName, "ko") ||
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+      // default: date_desc
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  };
+
+  const rawPendingApps = db.activityApplications.filter(
+    (a) => a.status !== "진행완료"
+  );
+  const rawCompletedApps = db.activityApplications.filter(
+    (a) => a.status === "진행완료"
+  );
+
+  const filteredPendingApps = filterAndSortApps(
+    rawPendingApps,
+    pendingActTypeFilter,
+    pendingStatusFilter,
+    pendingSearchQuery,
+    pendingSortBy
+  );
+
+  const filteredCompletedApps = filterAndSortApps(
+    rawCompletedApps,
+    completedActTypeFilter,
+    completedStatusFilter,
+    completedSearchQuery,
+    completedSortBy
+  );
+
   // Admin Security PIN Lock Gate (Initial PIN: 20170519)
   if (!isAdminUnlocked) {
     return (
@@ -650,7 +825,7 @@ export default function AdminDashboardView({
                 },
                 {
                   key: "logs",
-                  label: `📊 3. 접속/체류시간 로그 & 액티비티 신청 (${db.activityApplications.length})`,
+                  label: `📊 3. 접속/체류시간 로그 & 액티비티 관리 (신청 ${rawPendingApps.length} · 완료 ${rawCompletedApps.length})`,
                   icon: <Activity className="w-4 h-4" />,
                 },
                 {
@@ -1549,87 +1724,613 @@ export default function AdminDashboardView({
                 </button>
               </div>
 
-              {/* Section 1: Merz Activity Applications */}
-              <div className="toss-card p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-extrabold text-[#191F28] flex items-center gap-2">
-                    <Bell className="w-4 h-4 text-[#3182F6]" />
-                    <span>Merz Activity 4종 원장님 신청 내역 ({db.activityApplications.length}건)</span>
-                  </h3>
-                  <span className="text-xs text-[#8B95A1]">
-                    카카오톡 ID: <strong>{db.repProfile.kakaoId}</strong> 알림 연동
+              {/* Section 1: Merz Activity Applications & Completed Views */}
+              <div className="space-y-5">
+                {/* Activity View Mode Switcher Bar */}
+                <div className="toss-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-2 border-[#CFE2FF] bg-[#F8FAFC]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setActivityViewMode("pending")}
+                      className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-2 transition ${
+                        activityViewMode === "pending"
+                          ? "bg-[#3182F6] text-white shadow-md shadow-blue-500/20"
+                          : "bg-white text-[#191F28] border border-slate-200 hover:bg-[#E8F3FF]"
+                      }`}
+                    >
+                      <Bell className="w-4 h-4" />
+                      <span>📥 액티비티 신청 내역 뷰 (진행중)</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs ${
+                          activityViewMode === "pending"
+                            ? "bg-white/25 text-white"
+                            : "bg-[#E8F3FF] text-[#1B64DA]"
+                        }`}
+                      >
+                        {rawPendingApps.length}건
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActivityViewMode("completed")}
+                      className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold flex items-center gap-2 transition ${
+                        activityViewMode === "completed"
+                          ? "bg-[#00C471] text-white shadow-md shadow-emerald-500/20"
+                          : "bg-white text-[#191F28] border border-slate-200 hover:bg-emerald-50"
+                      }`}
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>✅ 액티비티 완료 내역 뷰 (완료 보관함)</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs ${
+                          activityViewMode === "completed"
+                            ? "bg-white/25 text-white"
+                            : "bg-emerald-100 text-emerald-700"
+                        }`}
+                      >
+                        {rawCompletedApps.length}건
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActivityViewMode("both")}
+                      className={`px-3.5 py-2.5 rounded-2xl text-xs font-extrabold transition ${
+                        activityViewMode === "both"
+                          ? "bg-[#191F28] text-white shadow-sm"
+                          : "bg-white text-[#4E5968] border border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      📋 신청 + 완료 내역 한눈에 같이 보기
+                    </button>
+                  </div>
+
+                  <span className="text-xs text-[#4E5968] font-semibold">
+                    💡 진행상태를 <strong className="text-[#00A862]">[진행완료]</strong>로 변경하면 신청 내역 뷰에서 사라지고 완료 내역 뷰로 자동 이동합니다.
                   </span>
                 </div>
 
-                {db.activityApplications.length === 0 ? (
-                  <div className="text-center py-8 bg-slate-50 rounded-xl text-xs text-slate-400">
-                    아직 접수된 액티비티 신청 내역이 없습니다.
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                      <thead>
-                        <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs">
-                          <th className="py-3 px-4">신청 일시</th>
-                          <th className="py-3 px-4">거래처 (원장님)</th>
-                          <th className="py-3 px-4">신청 액티비티</th>
-                          <th className="py-3 px-4">희망 일정 / 연락처</th>
-                          <th className="py-3 px-4">요청 메모</th>
-                          <th className="py-3 px-4">진행 상태</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {db.activityApplications.map((app) => (
-                          <tr key={app.id} className="hover:bg-slate-50">
-                            <td className="py-3 px-4 text-xs text-slate-500 whitespace-nowrap">
-                              {new Date(app.createdAt).toLocaleString("ko-KR")}
-                            </td>
-                            <td className="py-3 px-4 font-bold text-slate-900">
-                              {app.clinicName} ({app.directorName}님)
-                            </td>
-                            <td className="py-3 px-4">
-                              <span className="bg-[#3182F6] text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                                {app.activityCode}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-xs text-slate-700">
-                              <div>
-                                <strong>일정:</strong> {app.preferredDate}
-                              </div>
-                              {app.contactPhone && (
-                                <div className="text-slate-500">연락처: {app.contactPhone}</div>
-                              )}
-                            </td>
-                            <td className="py-3 px-4 text-xs text-slate-600 max-w-xs">
-                              {app.requestNote || "-"}
-                            </td>
-                            <td className="py-3 px-4">
-                              <select
-                                value={app.status}
-                                onChange={(e) => {
-                                  const nextApps = db.activityApplications.map((a) =>
-                                    a.id === app.id
-                                      ? {
-                                          ...a,
-                                          status: e.target.value as typeof app.status,
-                                        }
-                                      : a
-                                  );
-                                  const nextDb = { ...db, activityApplications: nextApps };
-                                  setDb(nextDb);
-                                  persistDb(nextDb, "신청 상태가 변경되었어요.");
-                                }}
-                                className="text-xs font-bold bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1.5"
+                {/* ==================== VIEW 1: 진행중 액티비티 신청 내역 뷰 ==================== */}
+                {(activityViewMode === "pending" || activityViewMode === "both") && (
+                  <div className="toss-card p-6 space-y-4 border-t-4 border-[#3182F6]">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                      <div>
+                        <h3 className="text-base sm:text-lg font-extrabold text-[#191F28] flex items-center gap-2">
+                          <Bell className="w-4 h-4 text-[#3182F6]" />
+                          <span>
+                            Merz Activity 4종 진행중 신청 내역 (검색된 {filteredPendingApps.length}건 / 전체 진행중 {rawPendingApps.length}건)
+                          </span>
+                        </h3>
+                        <p className="text-xs text-[#8B95A1] mt-0.5">
+                          접수완료 및 일정조율중 건을 관리합니다. 완료 처리 시 [완료 내역 뷰]로 이동하며, 오인입건은 우측 삭제 버튼으로 즉시 삭제할 수 있습니다.
+                        </p>
+                      </div>
+                      <span className="text-xs text-[#8B95A1] shrink-0">
+                        카톡 ID: <strong>{db.repProfile.kakaoId}</strong> 알림 연동
+                      </span>
+                    </div>
+
+                    {/* Row A: 4종 액티비티별 원클릭 필터 버튼 */}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-xs font-extrabold text-slate-500 mr-1">
+                        액티비티별 필터:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPendingActTypeFilter("all")}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                          pendingActTypeFilter === "all"
+                            ? "bg-[#3182F6] text-white shadow-sm"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        전체 ({rawPendingApps.length})
+                      </button>
+                      {activityTypeOptions.map((opt) => {
+                        const count = rawPendingApps.filter(
+                          (a) => a.activityCode === opt.code
+                        ).length;
+                        return (
+                          <button
+                            key={opt.code}
+                            type="button"
+                            onClick={() => setPendingActTypeFilter(opt.code)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 ${
+                              pendingActTypeFilter === opt.code
+                                ? "bg-[#3182F6] text-white shadow-sm"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            <span>{opt.code}</span>
+                            <span className="text-[10px] opacity-80">({count})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Row B: 진행상태별 필터 + 솔팅(정렬) + 텍스트 실시간 검색 */}
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 bg-[#F8FAFC] p-3.5 rounded-2xl border border-slate-200">
+                      {/* 진행상태 필터 */}
+                      <div className="md:col-span-3 flex items-center gap-2">
+                        <span className="text-xs font-extrabold text-slate-600 shrink-0">
+                          진행상태:
+                        </span>
+                        <select
+                          value={pendingStatusFilter}
+                          onChange={(e) => setPendingStatusFilter(e.target.value)}
+                          className="w-full text-xs font-extrabold bg-white border border-slate-300 rounded-xl px-3 py-2 text-[#191F28]"
+                        >
+                          <option value="all">
+                            전체 진행상태 ({rawPendingApps.length})
+                          </option>
+                          <option value="접수완료">
+                            🟡 접수완료 (
+                            {rawPendingApps.filter((a) => a.status === "접수완료").length})
+                          </option>
+                          <option value="일정조율중">
+                            🔵 일정조율중 (
+                            {rawPendingApps.filter((a) => a.status === "일정조율중").length})
+                          </option>
+                        </select>
+                      </div>
+
+                      {/* 솔팅(정렬) 기준 */}
+                      <div className="md:col-span-4 flex items-center gap-2">
+                        <span className="text-xs font-extrabold text-slate-600 shrink-0 flex items-center gap-1">
+                          <ArrowUpDown className="w-3.5 h-3.5 text-[#3182F6]" />
+                          <span>솔팅:</span>
+                        </span>
+                        <select
+                          value={pendingSortBy}
+                          onChange={(e) =>
+                            setPendingSortBy(
+                              e.target.value as typeof pendingSortBy
+                            )
+                          }
+                          className="w-full text-xs font-extrabold bg-white border border-slate-300 rounded-xl px-3 py-2 text-[#191F28]"
+                        >
+                          <option value="date_desc">신청일시 최신순</option>
+                          <option value="date_asc">신청일시 오래된순</option>
+                          <option value="activity">액티비티별 솔팅 (4종 순)</option>
+                          <option value="status">진행상태별 솔팅 (접수완료→조율중)</option>
+                          <option value="clinic">거래처 병원명 가나다순</option>
+                        </select>
+                      </div>
+
+                      {/* 통합 텍스트 검색 */}
+                      <div className="md:col-span-5 relative flex items-center">
+                        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={pendingSearchQuery}
+                          onChange={(e) => setPendingSearchQuery(e.target.value)}
+                          placeholder="거래처명, 원장님 성함, 메모 내용, 일정 검색..."
+                          className="w-full text-xs font-bold bg-white border border-slate-300 rounded-xl pl-8 pr-8 py-2 text-[#191F28] focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
+                        />
+                        {pendingSearchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setPendingSearchQuery("")}
+                            className="absolute right-2.5 text-slate-400 hover:text-slate-700"
+                            title="검색어 지우기"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Pending Applications Table */}
+                    {filteredPendingApps.length === 0 ? (
+                      <div className="text-center py-9 bg-slate-50 rounded-2xl text-xs text-slate-400 font-semibold">
+                        {rawPendingApps.length === 0
+                          ? "현재 진행중인 액티비티 신청 내역이 없습니다. (완료된 내역은 [완료 내역 뷰]에서 확인하실 수 있어요)"
+                          : "선택하신 필터 또는 검색어와 일치하는 신청 내역이 없습니다."}
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                          <thead>
+                            <tr className="bg-slate-50 text-slate-600 border-b border-slate-200 text-xs">
+                              <th
+                                className="py-3 px-3 cursor-pointer hover:text-[#3182F6] whitespace-nowrap"
+                                onClick={() =>
+                                  setPendingSortBy(
+                                    pendingSortBy === "date_desc" ? "date_asc" : "date_desc"
+                                  )
+                                }
                               >
-                                <option value="접수완료">접수완료</option>
-                                <option value="일정조율중">일정조율중</option>
-                                <option value="진행완료">진행완료</option>
-                              </select>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                                신청 일시 ↕
+                              </th>
+                              <th
+                                className="py-3 px-3 cursor-pointer hover:text-[#3182F6]"
+                                onClick={() => setPendingSortBy("clinic")}
+                              >
+                                거래처 (원장님) ↕
+                              </th>
+                              <th
+                                className="py-3 px-3 cursor-pointer hover:text-[#3182F6]"
+                                onClick={() => setPendingSortBy("activity")}
+                              >
+                                신청 액티비티 ↕
+                              </th>
+                              <th className="py-3 px-3">희망 일정 / 연락처</th>
+                              <th className="py-3 px-3">원장님 요청 메모 & 관리 메모</th>
+                              <th
+                                className="py-3 px-3 cursor-pointer hover:text-[#3182F6]"
+                                onClick={() => setPendingSortBy("status")}
+                              >
+                                진행 상태 ↕
+                              </th>
+                              <th className="py-3 px-3 text-right">오인입 삭제</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {filteredPendingApps.map((app) => (
+                              <tr key={app.id} className="hover:bg-slate-50/80">
+                                <td className="py-3.5 px-3 text-xs text-slate-500 whitespace-nowrap">
+                                  {new Date(app.createdAt).toLocaleString("ko-KR")}
+                                </td>
+                                <td className="py-3.5 px-3 font-extrabold text-[#191F28] whitespace-nowrap">
+                                  {app.clinicName}{" "}
+                                  <span className="text-xs font-bold text-[#3182F6]">
+                                    ({app.directorName}님)
+                                  </span>
+                                </td>
+                                <td className="py-3.5 px-3 whitespace-nowrap">
+                                  <span className="bg-[#3182F6] text-white text-xs font-extrabold px-2.5 py-1 rounded-full inline-block">
+                                    {app.activityCode}
+                                  </span>
+                                  {app.activityTitle &&
+                                    app.activityTitle !== app.activityCode && (
+                                      <div className="text-[11px] text-slate-500 mt-1 font-semibold">
+                                        {app.activityTitle}
+                                      </div>
+                                    )}
+                                </td>
+                                <td className="py-3.5 px-3 text-xs text-slate-700">
+                                  <div>
+                                    <strong>일정:</strong> {app.preferredDate}
+                                  </div>
+                                  {app.contactPhone && (
+                                    <div className="text-slate-500 mt-0.5">
+                                      연락처: {app.contactPhone}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="py-3.5 px-3 text-xs text-slate-700 min-w-[210px] space-y-1.5">
+                                  <div className="font-semibold text-[#191F28]">
+                                    {app.requestNote ? `💬 "${app.requestNote}"` : "-"}
+                                  </div>
+                                  <input
+                                    type="text"
+                                    value={app.adminMemo || ""}
+                                    onChange={(e) =>
+                                      handleUpdateActivityAdminMemo(app.id, e.target.value)
+                                    }
+                                    onBlur={() =>
+                                      persistDb(db, "담당자 관리 메모가 자동 저장되었어요!")
+                                    }
+                                    placeholder="담당자 진행 메모 입력..."
+                                    className="w-full text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 focus:outline-none focus:border-[#3182F6]"
+                                  />
+                                </td>
+                                <td className="py-3.5 px-3 whitespace-nowrap">
+                                  <div className="flex items-center gap-1.5">
+                                    <select
+                                      value={app.status}
+                                      onChange={(e) =>
+                                        handleUpdateActivityStatus(
+                                          app.id,
+                                          e.target.value as typeof app.status
+                                        )
+                                      }
+                                      className={`text-xs font-extrabold border rounded-xl px-2.5 py-1.5 ${
+                                        app.status === "접수완료"
+                                          ? "bg-amber-50 text-amber-800 border-amber-300"
+                                          : "bg-blue-50 text-[#1B64DA] border-blue-300"
+                                      }`}
+                                    >
+                                      <option value="접수완료">🟡 접수완료</option>
+                                      <option value="일정조율중">🔵 일정조율중</option>
+                                      <option value="진행완료">✅ 진행완료 (완료뷰로 이동)</option>
+                                    </select>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleUpdateActivityStatus(app.id, "진행완료")
+                                      }
+                                      className="bg-[#00C471] hover:bg-[#00A862] text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl transition shadow-sm"
+                                      title="즉시 진행완료 처리하여 완료 내역 뷰로 이동"
+                                    >
+                                      완료처리
+                                    </button>
+                                  </div>
+                                </td>
+                                <td className="py-3.5 px-3 text-right whitespace-nowrap">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleDeleteActivityApplication(
+                                        app.id,
+                                        app.clinicName,
+                                        app.activityCode
+                                      )
+                                    }
+                                    className="inline-flex items-center gap-1 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 rounded-xl transition"
+                                    title="오인입 신청건 삭제"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>삭제</span>
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ==================== VIEW 2: 액티비티 완료 내역 뷰 (완료 보관함 & 추후 관리) ==================== */}
+                {(activityViewMode === "completed" || activityViewMode === "both") && (
+                  <div className="toss-card p-6 space-y-4 border-t-4 border-[#00C471]">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                      <div>
+                        <h3 className="text-base sm:text-lg font-extrabold text-[#191F28] flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-[#00C471]" />
+                          <span>
+                            Merz Activity 4종 완료 내역 뷰 (검색된 {filteredCompletedApps.length}건 / 전체 완료 {rawCompletedApps.length}건)
+                          </span>
+                        </h3>
+                        <p className="text-xs text-[#8B95A1] mt-0.5">
+                          진행완료 처리된 액티비티 내역이 보관되어 추후 사후 관리 및 히스토리 검색이 가능합니다. (상태 변경 시 다시 진행중 신청 내역 뷰로 복귀 가능)
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Row A: 완료 내역 액티비티 4종별 필터 버튼 */}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-xs font-extrabold text-slate-500 mr-1">
+                        액티비티별 필터:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setCompletedActTypeFilter("all")}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                          completedActTypeFilter === "all"
+                            ? "bg-[#00C471] text-white shadow-sm"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        전체 완료 ({rawCompletedApps.length})
+                      </button>
+                      {activityTypeOptions.map((opt) => {
+                        const count = rawCompletedApps.filter(
+                          (a) => a.activityCode === opt.code
+                        ).length;
+                        return (
+                          <button
+                            key={opt.code}
+                            type="button"
+                            onClick={() => setCompletedActTypeFilter(opt.code)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 ${
+                              completedActTypeFilter === opt.code
+                                ? "bg-[#00C471] text-white shadow-sm"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            <span>{opt.code}</span>
+                            <span className="text-[10px] opacity-80">({count})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Row B: 완료 내역 필터 + 솔팅(정렬) + 텍스트 실시간 검색 */}
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 bg-[#F0FDF4] p-3.5 rounded-2xl border border-emerald-200">
+                      {/* 진행상태 표시/필터 */}
+                      <div className="md:col-span-3 flex items-center gap-2">
+                        <span className="text-xs font-extrabold text-emerald-800 shrink-0">
+                          상태필터:
+                        </span>
+                        <select
+                          value={completedStatusFilter}
+                          onChange={(e) => setCompletedStatusFilter(e.target.value)}
+                          className="w-full text-xs font-extrabold bg-white border border-emerald-300 rounded-xl px-3 py-2 text-[#191F28]"
+                        >
+                          <option value="all">
+                            ✅ 진행완료 전체 ({rawCompletedApps.length})
+                          </option>
+                          <option value="진행완료">
+                            ✅ 진행완료 ({rawCompletedApps.length})
+                          </option>
+                        </select>
+                      </div>
+
+                      {/* 솔팅(정렬) 기준 */}
+                      <div className="md:col-span-4 flex items-center gap-2">
+                        <span className="text-xs font-extrabold text-emerald-800 shrink-0 flex items-center gap-1">
+                          <ArrowUpDown className="w-3.5 h-3.5 text-[#00C471]" />
+                          <span>솔팅:</span>
+                        </span>
+                        <select
+                          value={completedSortBy}
+                          onChange={(e) =>
+                            setCompletedSortBy(
+                              e.target.value as typeof completedSortBy
+                            )
+                          }
+                          className="w-full text-xs font-extrabold bg-white border border-emerald-300 rounded-xl px-3 py-2 text-[#191F28]"
+                        >
+                          <option value="date_desc">신청/완료 최신순</option>
+                          <option value="date_asc">신청/완료 오래된순</option>
+                          <option value="activity">액티비티별 솔팅 (4종 순)</option>
+                          <option value="clinic">거래처 병원명 가나다순</option>
+                        </select>
+                      </div>
+
+                      {/* 통합 텍스트 검색 */}
+                      <div className="md:col-span-5 relative flex items-center">
+                        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={completedSearchQuery}
+                          onChange={(e) => setCompletedSearchQuery(e.target.value)}
+                          placeholder="완료 내역 검색 (거래처, 원장님 성함, 메모 내용...)"
+                          className="w-full text-xs font-bold bg-white border border-emerald-300 rounded-xl pl-8 pr-8 py-2 text-[#191F28] focus:outline-none focus:ring-2 focus:ring-[#00C471]"
+                        />
+                        {completedSearchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setCompletedSearchQuery("")}
+                            className="absolute right-2.5 text-slate-400 hover:text-slate-700"
+                            title="검색어 지우기"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Completed Applications Table */}
+                    {filteredCompletedApps.length === 0 ? (
+                      <div className="text-center py-9 bg-slate-50 rounded-2xl text-xs text-slate-400 font-semibold">
+                        {rawCompletedApps.length === 0
+                          ? "아직 진행완료 처리된 액티비티 내역이 없습니다. 신청 내역에서 [진행완료]로 변경하면 이곳에 보관됩니다."
+                          : "선택하신 필터 또는 검색어와 일치하는 완료 내역이 없습니다."}
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                          <thead>
+                            <tr className="bg-emerald-50/70 text-slate-700 border-b border-emerald-200 text-xs">
+                              <th
+                                className="py-3 px-3 cursor-pointer hover:text-[#00A862] whitespace-nowrap"
+                                onClick={() =>
+                                  setCompletedSortBy(
+                                    completedSortBy === "date_desc" ? "date_asc" : "date_desc"
+                                  )
+                                }
+                              >
+                                신청 / 완료 일시 ↕
+                              </th>
+                              <th
+                                className="py-3 px-3 cursor-pointer hover:text-[#00A862]"
+                                onClick={() => setCompletedSortBy("clinic")}
+                              >
+                                거래처 (원장님) ↕
+                              </th>
+                              <th
+                                className="py-3 px-3 cursor-pointer hover:text-[#00A862]"
+                                onClick={() => setCompletedSortBy("activity")}
+                              >
+                                완료 액티비티 ↕
+                              </th>
+                              <th className="py-3 px-3">진행 일정 / 연락처</th>
+                              <th className="py-3 px-3">요청 메모 & 사후관리 메모</th>
+                              <th className="py-3 px-3">진행 상태 (변경/복원)</th>
+                              <th className="py-3 px-3 text-right">내역 삭제</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {filteredCompletedApps.map((app) => (
+                              <tr key={app.id} className="hover:bg-emerald-50/30">
+                                <td className="py-3.5 px-3 text-xs text-slate-500 whitespace-nowrap space-y-0.5">
+                                  <div>
+                                    신청: {new Date(app.createdAt).toLocaleString("ko-KR")}
+                                  </div>
+                                  {app.completedAt && (
+                                    <div className="text-[11px] font-bold text-[#00A862]">
+                                      완료: {new Date(app.completedAt).toLocaleString("ko-KR")}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="py-3.5 px-3 font-extrabold text-[#191F28] whitespace-nowrap">
+                                  {app.clinicName}{" "}
+                                  <span className="text-xs font-bold text-[#00A862]">
+                                    ({app.directorName}님)
+                                  </span>
+                                </td>
+                                <td className="py-3.5 px-3 whitespace-nowrap">
+                                  <span className="bg-[#00C471] text-white text-xs font-extrabold px-2.5 py-1 rounded-full inline-block">
+                                    {app.activityCode}
+                                  </span>
+                                  {app.activityTitle &&
+                                    app.activityTitle !== app.activityCode && (
+                                      <div className="text-[11px] text-slate-500 mt-1 font-semibold">
+                                        {app.activityTitle}
+                                      </div>
+                                    )}
+                                </td>
+                                <td className="py-3.5 px-3 text-xs text-slate-700">
+                                  <div>
+                                    <strong>일정:</strong> {app.preferredDate}
+                                  </div>
+                                  {app.contactPhone && (
+                                    <div className="text-slate-500 mt-0.5">
+                                      연락처: {app.contactPhone}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="py-3.5 px-3 text-xs text-slate-700 min-w-[210px] space-y-1.5">
+                                  <div className="font-semibold text-[#191F28]">
+                                    {app.requestNote ? `💬 "${app.requestNote}"` : "-"}
+                                  </div>
+                                  <input
+                                    type="text"
+                                    value={app.adminMemo || ""}
+                                    onChange={(e) =>
+                                      handleUpdateActivityAdminMemo(app.id, e.target.value)
+                                    }
+                                    onBlur={() =>
+                                      persistDb(db, "사후관리 메모가 자동 저장되었어요!")
+                                    }
+                                    placeholder="사후관리/결과 메모 기록..."
+                                    className="w-full text-[11px] bg-white border border-emerald-200 rounded-lg px-2.5 py-1 text-slate-700 focus:outline-none focus:border-[#00C471]"
+                                  />
+                                </td>
+                                <td className="py-3.5 px-3 whitespace-nowrap">
+                                  <select
+                                    value={app.status}
+                                    onChange={(e) =>
+                                      handleUpdateActivityStatus(
+                                        app.id,
+                                        e.target.value as typeof app.status
+                                      )
+                                    }
+                                    className="text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl px-2.5 py-1.5"
+                                  >
+                                    <option value="진행완료">✅ 진행완료</option>
+                                    <option value="일정조율중">🔵 일정조율중 (신청뷰 복귀)</option>
+                                    <option value="접수완료">🟡 접수완료 (신청뷰 복귀)</option>
+                                  </select>
+                                </td>
+                                <td className="py-3.5 px-3 text-right whitespace-nowrap">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      handleDeleteActivityApplication(
+                                        app.id,
+                                        app.clinicName,
+                                        app.activityCode
+                                      )
+                                    }
+                                    className="inline-flex items-center gap-1 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 rounded-xl transition"
+                                    title="내역 삭제"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>삭제</span>
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

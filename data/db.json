@@ -6,7 +6,7 @@
     "phone": "010-4631-7925",
     "email": "yun.seo@merz.co.kr",
     "kakaoId": "seoyun4",
-    "kakaoOpenChatUrl": "http://qr.kakao.com/talk/rWbkaPX81O4cm1K6BacAGUoT0Ps-",
+    "kakaoOpenChatUrl": "",
     "kakaoWebhookToken": "",
     "customWebhookUrl": "",
     "tagline": "벨로테로 리바이브 도입부터 원내 셀링까지 편하게 문의주세요.",
@@ -969,6 +969,36 @@
   ],
   "accessLogs": [
     {
+      "sessionId": "sess-clinic-3919-1793884911106-mbt3",
+      "clinicSlug": "clinic-3919",
+      "clinicName": "기내의원",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-05T13:21:52.430Z",
+      "lastActiveAt": "2026-11-05T13:23:03.800Z",
+      "totalDwellSeconds": 0,
+      "tabDwellSeconds": {
+        "home": 0,
+        "overview": 0,
+        "events": 0,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "home",
+        "overview",
+        "packages",
+        "overview"
+      ],
+      "clickedItems": [
+        {
+          "type": "contact_action",
+          "label": "RBS 서윤 카카오톡(seoyun4) 연결 클릭",
+          "timestamp": "2026-11-05T13:21:52.430Z"
+        }
+      ]
+    },
+    {
       "sessionId": "sess-clinic-3919-1793884294196-jach",
       "clinicSlug": "clinic-3919",
       "clinicName": "기내의원",
@@ -1150,7 +1180,7 @@
       "directorName": "김원장",
       "deviceType": "PC",
       "startedAt": "2026-11-05T11:01:45.502Z",
-      "lastActiveAt": "2026-11-05T13:16:53.407Z",
+      "lastActiveAt": "2026-11-05T13:23:08.679Z",
       "totalDwellSeconds": 4832,
       "tabDwellSeconds": {
         "home": 42,

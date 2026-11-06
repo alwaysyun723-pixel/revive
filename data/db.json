@@ -564,9 +564,40 @@
         "ev-newve-ss",
         "ev-4ever-gn"
       ],
-      "customPackages": [],
+      "customPackages": [
+        {
+          "id": "cust-pkg-1793961788423",
+          "category": "custom",
+          "name": "신규 거래처 의원 시그니처 리바이브 2cc 패키지",
+          "tagline": "신규 거래처 의원 맞춤 제안",
+          "composition": [
+            "리바이브 2cc",
+            "LDM 12분"
+          ],
+          "targetConcern": "속건조·수분광채 개선 고객",
+          "recommendedPrice": 690000,
+          "regularPrice": 890000,
+          "synergyPoint": "1회 시술당 높은 만족도와 순수익을 동시에 확보하는 구성이에요.",
+          "badge": "⭐ 신규 거래처 의원 맞춤"
+        },
+        {
+          "id": "cust-pkg-1793961789968",
+          "category": "custom",
+          "name": "신규 거래처 의원 시그니처 리바이브 2cc 패키지",
+          "tagline": "신규 거래처 의원 맞춤 제안",
+          "composition": [
+            "리바이브 2cc",
+            "LDM 12분"
+          ],
+          "targetConcern": "속건조·수분광채 개선 고객",
+          "recommendedPrice": 690000,
+          "regularPrice": 890000,
+          "synergyPoint": "1회 시술당 높은 만족도와 순수익을 동시에 확보하는 구성이에요.",
+          "badge": "⭐ 신규 거래처 의원 맞춤"
+        }
+      ],
       "createdAt": "2026-11-06T03:21:46.372Z",
-      "updatedAt": "2026-11-06T03:21:46.372Z"
+      "updatedAt": "2026-11-06T10:43:20.228Z"
     },
     {
       "id": "clinic-1793883417091",

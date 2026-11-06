@@ -122,17 +122,18 @@ export default function AdminDashboardView({
   const [activityViewMode, setActivityViewMode] = useState<"pending" | "completed" | "both">(
     "pending"
   );
-  // Filters & sorting for Pending Activity Applications View (신청 내역 뷰)
-  const [pendingActTypeFilter, setPendingActTypeFilter] = useState<string>("all");
-  const [pendingStatusFilter, setPendingStatusFilter] = useState<string>("all");
+  // Multi-select item filters for Pending Activity Applications View (신청 내역 뷰 — 항목별 중복 적용 가능)
+  const [pendingSelectedActs, setPendingSelectedActs] = useState<string[]>([]);
+  const [pendingSelectedStatuses, setPendingSelectedStatuses] = useState<string[]>([]);
+  const [pendingSelectedClinics, setPendingSelectedClinics] = useState<string[]>([]);
   const [pendingSearchQuery, setPendingSearchQuery] = useState<string>("");
   const [pendingSortBy, setPendingSortBy] = useState<
     "date_desc" | "date_asc" | "activity" | "status" | "clinic"
   >("date_desc");
 
-  // Filters & sorting for Completed Activity Applications View (완료 내역 뷰)
-  const [completedActTypeFilter, setCompletedActTypeFilter] = useState<string>("all");
-  const [completedStatusFilter, setCompletedStatusFilter] = useState<string>("all");
+  // Multi-select item filters for Completed Activity Applications View (완료 내역 뷰 — 항목별 중복 적용 가능)
+  const [completedSelectedActs, setCompletedSelectedActs] = useState<string[]>([]);
+  const [completedSelectedClinics, setCompletedSelectedClinics] = useState<string[]>([]);
   const [completedSearchQuery, setCompletedSearchQuery] = useState<string>("");
   const [completedSortBy, setCompletedSortBy] = useState<
     "date_desc" | "date_asc" | "activity" | "status" | "clinic"
@@ -610,19 +611,39 @@ export default function AdminDashboardView({
     return baseCodes;
   }, [db.merzActivities, db.activityApplications]);
 
+  const toggleMultiFilter = (
+    list: string[],
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+    value: string
+  ) => {
+    setter(
+      list.includes(value) ? list.filter((v) => v !== value) : [...list, value]
+    );
+  };
+
   const filterAndSortApps = (
     list: typeof db.activityApplications,
-    actFilter: string,
-    statusFilter: string,
+    selectedActs: string[],
+    selectedStatuses: string[],
+    selectedClinics: string[],
     searchQuery: string,
     sortBy: "date_desc" | "date_asc" | "activity" | "status" | "clinic"
   ) => {
     const q = searchQuery.trim().toLowerCase();
     const filtered = list.filter((item) => {
-      if (actFilter !== "all" && item.activityCode !== actFilter) {
+      if (selectedActs.length > 0 && !selectedActs.includes(item.activityCode)) {
         return false;
       }
-      if (statusFilter !== "all" && item.status !== statusFilter) {
+      if (
+        selectedStatuses.length > 0 &&
+        !selectedStatuses.includes(item.status)
+      ) {
+        return false;
+      }
+      if (
+        selectedClinics.length > 0 &&
+        !selectedClinics.includes(item.clinicName)
+      ) {
         return false;
       }
       if (q) {
@@ -683,18 +704,27 @@ export default function AdminDashboardView({
     (a) => a.status === "진행완료"
   );
 
+  const pendingClinicNames = Array.from(
+    new Set(rawPendingApps.map((a) => a.clinicName))
+  );
+  const completedClinicNames = Array.from(
+    new Set(rawCompletedApps.map((a) => a.clinicName))
+  );
+
   const filteredPendingApps = filterAndSortApps(
     rawPendingApps,
-    pendingActTypeFilter,
-    pendingStatusFilter,
+    pendingSelectedActs,
+    pendingSelectedStatuses,
+    pendingSelectedClinics,
     pendingSearchQuery,
     pendingSortBy
   );
 
   const filteredCompletedApps = filterAndSortApps(
     rawCompletedApps,
-    completedActTypeFilter,
-    completedStatusFilter,
+    completedSelectedActs,
+    [],
+    completedSelectedClinics,
     completedSearchQuery,
     completedSortBy
   );
@@ -1799,11 +1829,11 @@ export default function AdminDashboardView({
                         <h3 className="text-base sm:text-lg font-extrabold text-[#191F28] flex items-center gap-2">
                           <Bell className="w-4 h-4 text-[#3182F6]" />
                           <span>
-                            Merz Activity 4종 진행중 신청 내역 (검색된 {filteredPendingApps.length}건 / 전체 진행중 {rawPendingApps.length}건)
+                            Merz Activity 4종 진행중 신청 내역 (검색·필터 {filteredPendingApps.length}건 / 전체 진행중 {rawPendingApps.length}건)
                           </span>
                         </h3>
                         <p className="text-xs text-[#8B95A1] mt-0.5">
-                          접수완료 및 일정조율중 건을 관리합니다. 완료 처리 시 [완료 내역 뷰]로 이동하며, 오인입건은 우측 삭제 버튼으로 즉시 삭제할 수 있습니다.
+                          아래 각 항목(액티비티·진행상태·거래처·검색어)을 원하는 대로 중복 클릭하여 동시에 필터링할 수 있습니다.
                         </p>
                       </div>
                       <span className="text-xs text-[#8B95A1] shrink-0">
@@ -1811,112 +1841,196 @@ export default function AdminDashboardView({
                       </span>
                     </div>
 
-                    {/* Row A: 4종 액티비티별 원클릭 필터 버튼 */}
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-xs font-extrabold text-slate-500 mr-1">
-                        액티비티별 필터:
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setPendingActTypeFilter("all")}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
-                          pendingActTypeFilter === "all"
-                            ? "bg-[#3182F6] text-white shadow-sm"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        전체 ({rawPendingApps.length})
-                      </button>
-                      {activityTypeOptions.map((opt) => {
-                        const count = rawPendingApps.filter(
-                          (a) => a.activityCode === opt.code
-                        ).length;
-                        return (
-                          <button
-                            key={opt.code}
-                            type="button"
-                            onClick={() => setPendingActTypeFilter(opt.code)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 ${
-                              pendingActTypeFilter === opt.code
-                                ? "bg-[#3182F6] text-white shadow-sm"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
-                          >
-                            <span>{opt.code}</span>
-                            <span className="text-[10px] opacity-80">({count})</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* 통합 항목별 중복 필터 & 실시간 검색 패널 (진행상태/솔팅 분리 없이 모든 항목 중복 필터링) */}
+                    <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-slate-200 space-y-3">
+                      {/* 1. 통합 텍스트 실시간 검색 + 필터 전체 초기화 */}
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div className="relative flex-1 flex items-center">
+                          <Search className="w-4 h-4 text-[#3182F6] absolute left-3.5 pointer-events-none" />
+                          <input
+                            type="text"
+                            value={pendingSearchQuery}
+                            onChange={(e) => setPendingSearchQuery(e.target.value)}
+                            placeholder="거래처명, 원장님 성함, 요청 메모, 관리 메모, 희망 일정 검색 (아래 항목 필터와 중복 적용)..."
+                            className="w-full text-xs font-bold bg-white border border-slate-300 rounded-xl pl-9 pr-8 py-2.5 text-[#191F28] focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
+                          />
+                          {pendingSearchQuery && (
+                            <button
+                              type="button"
+                              onClick={() => setPendingSearchQuery("")}
+                              className="absolute right-2.5 text-slate-400 hover:text-slate-700"
+                              title="검색어 지우기"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
 
-                    {/* Row B: 진행상태별 필터 + 솔팅(정렬) + 텍스트 실시간 검색 */}
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 bg-[#F8FAFC] p-3.5 rounded-2xl border border-slate-200">
-                      {/* 진행상태 필터 */}
-                      <div className="md:col-span-3 flex items-center gap-2">
-                        <span className="text-xs font-extrabold text-slate-600 shrink-0">
-                          진행상태:
-                        </span>
-                        <select
-                          value={pendingStatusFilter}
-                          onChange={(e) => setPendingStatusFilter(e.target.value)}
-                          className="w-full text-xs font-extrabold bg-white border border-slate-300 rounded-xl px-3 py-2 text-[#191F28]"
-                        >
-                          <option value="all">
-                            전체 진행상태 ({rawPendingApps.length})
-                          </option>
-                          <option value="접수완료">
-                            🟡 접수완료 (
-                            {rawPendingApps.filter((a) => a.status === "접수완료").length})
-                          </option>
-                          <option value="일정조율중">
-                            🔵 일정조율중 (
-                            {rawPendingApps.filter((a) => a.status === "일정조율중").length})
-                          </option>
-                        </select>
-                      </div>
-
-                      {/* 솔팅(정렬) 기준 */}
-                      <div className="md:col-span-4 flex items-center gap-2">
-                        <span className="text-xs font-extrabold text-slate-600 shrink-0 flex items-center gap-1">
-                          <ArrowUpDown className="w-3.5 h-3.5 text-[#3182F6]" />
-                          <span>솔팅:</span>
-                        </span>
-                        <select
-                          value={pendingSortBy}
-                          onChange={(e) =>
-                            setPendingSortBy(
-                              e.target.value as typeof pendingSortBy
-                            )
-                          }
-                          className="w-full text-xs font-extrabold bg-white border border-slate-300 rounded-xl px-3 py-2 text-[#191F28]"
-                        >
-                          <option value="date_desc">신청일시 최신순</option>
-                          <option value="date_asc">신청일시 오래된순</option>
-                          <option value="activity">액티비티별 솔팅 (4종 순)</option>
-                          <option value="status">진행상태별 솔팅 (접수완료→조율중)</option>
-                          <option value="clinic">거래처 병원명 가나다순</option>
-                        </select>
-                      </div>
-
-                      {/* 통합 텍스트 검색 */}
-                      <div className="md:col-span-5 relative flex items-center">
-                        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
-                        <input
-                          type="text"
-                          value={pendingSearchQuery}
-                          onChange={(e) => setPendingSearchQuery(e.target.value)}
-                          placeholder="거래처명, 원장님 성함, 메모 내용, 일정 검색..."
-                          className="w-full text-xs font-bold bg-white border border-slate-300 rounded-xl pl-8 pr-8 py-2 text-[#191F28] focus:outline-none focus:ring-2 focus:ring-[#3182F6]"
-                        />
-                        {pendingSearchQuery && (
+                        {(pendingSelectedActs.length > 0 ||
+                          pendingSelectedStatuses.length > 0 ||
+                          pendingSelectedClinics.length > 0 ||
+                          pendingSearchQuery.trim() !== "") && (
                           <button
                             type="button"
-                            onClick={() => setPendingSearchQuery("")}
-                            className="absolute right-2.5 text-slate-400 hover:text-slate-700"
-                            title="검색어 지우기"
+                            onClick={() => {
+                              setPendingSelectedActs([]);
+                              setPendingSelectedStatuses([]);
+                              setPendingSelectedClinics([]);
+                              setPendingSearchQuery("");
+                            }}
+                            className="bg-slate-800 hover:bg-slate-900 text-white text-xs font-extrabold px-3.5 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shrink-0 transition"
                           >
                             <X className="w-3.5 h-3.5" />
+                            <span>선택 필터 전체 해제</span>
                           </button>
+                        )}
+                      </div>
+
+                      {/* 2. 항목별 다중(중복) 선택 필터 칩 (액티비티 / 진행상태 / 거래처) */}
+                      <div className="space-y-2 pt-1">
+                        {/* 액티비티 항목 (중복 선택 가능) */}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[11px] font-extrabold text-[#1B64DA] bg-[#E8F3FF] px-2.5 py-1 rounded-lg min-w-[78px] text-center">
+                            액티비티 항목
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setPendingSelectedActs([])}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                              pendingSelectedActs.length === 0
+                                ? "bg-[#3182F6] text-white shadow-sm"
+                                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                            }`}
+                          >
+                            전체 ({rawPendingApps.length})
+                          </button>
+                          {activityTypeOptions.map((opt) => {
+                            const isChecked = pendingSelectedActs.includes(opt.code);
+                            const count = rawPendingApps.filter(
+                              (a) => a.activityCode === opt.code
+                            ).length;
+                            return (
+                              <button
+                                key={opt.code}
+                                type="button"
+                                onClick={() =>
+                                  toggleMultiFilter(
+                                    pendingSelectedActs,
+                                    setPendingSelectedActs,
+                                    opt.code
+                                  )
+                                }
+                                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 border ${
+                                  isChecked
+                                    ? "bg-[#3182F6] text-white border-[#3182F6] shadow-sm"
+                                    : "bg-white text-slate-700 border-slate-200 hover:bg-[#E8F3FF]/60"
+                                }`}
+                              >
+                                {isChecked && <Check className="w-3 h-3" />}
+                                <span>{opt.code}</span>
+                                <span className="text-[10px] opacity-80">({count})</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* 진행상태 항목 (중복 선택 가능) */}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[11px] font-extrabold text-[#1B64DA] bg-[#E8F3FF] px-2.5 py-1 rounded-lg min-w-[78px] text-center">
+                            진행상태 항목
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setPendingSelectedStatuses([])}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                              pendingSelectedStatuses.length === 0
+                                ? "bg-[#3182F6] text-white shadow-sm"
+                                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                            }`}
+                          >
+                            전체 ({rawPendingApps.length})
+                          </button>
+                          {(
+                            [
+                              { code: "접수완료", label: "🟡 접수완료" },
+                              { code: "일정조율중", label: "🔵 일정조율중" },
+                            ] as const
+                          ).map((st) => {
+                            const isChecked = pendingSelectedStatuses.includes(st.code);
+                            const count = rawPendingApps.filter(
+                              (a) => a.status === st.code
+                            ).length;
+                            return (
+                              <button
+                                key={st.code}
+                                type="button"
+                                onClick={() =>
+                                  toggleMultiFilter(
+                                    pendingSelectedStatuses,
+                                    setPendingSelectedStatuses,
+                                    st.code
+                                  )
+                                }
+                                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 border ${
+                                  isChecked
+                                    ? "bg-[#3182F6] text-white border-[#3182F6] shadow-sm"
+                                    : "bg-white text-slate-700 border-slate-200 hover:bg-[#E8F3FF]/60"
+                                }`}
+                              >
+                                {isChecked && <Check className="w-3 h-3" />}
+                                <span>{st.label}</span>
+                                <span className="text-[10px] opacity-80">({count})</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* 거래처 항목 (중복 선택 가능) */}
+                        {pendingClinicNames.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[11px] font-extrabold text-[#1B64DA] bg-[#E8F3FF] px-2.5 py-1 rounded-lg min-w-[78px] text-center">
+                              거래처 항목
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setPendingSelectedClinics([])}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                                pendingSelectedClinics.length === 0
+                                  ? "bg-[#3182F6] text-white shadow-sm"
+                                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+                              }`}
+                            >
+                              전체 거래처 ({pendingClinicNames.length})
+                            </button>
+                            {pendingClinicNames.map((cName) => {
+                              const isChecked = pendingSelectedClinics.includes(cName);
+                              const count = rawPendingApps.filter(
+                                (a) => a.clinicName === cName
+                              ).length;
+                              return (
+                                <button
+                                  key={cName}
+                                  type="button"
+                                  onClick={() =>
+                                    toggleMultiFilter(
+                                      pendingSelectedClinics,
+                                      setPendingSelectedClinics,
+                                      cName
+                                    )
+                                  }
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 border ${
+                                    isChecked
+                                      ? "bg-[#3182F6] text-white border-[#3182F6] shadow-sm"
+                                      : "bg-white text-slate-700 border-slate-200 hover:bg-[#E8F3FF]/60"
+                                  }`}
+                                >
+                                  {isChecked && <Check className="w-3 h-3" />}
+                                  <span>{cName}</span>
+                                  <span className="text-[10px] opacity-80">({count})</span>
+                                </button>
+                              );
+                            })}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1926,7 +2040,7 @@ export default function AdminDashboardView({
                       <div className="text-center py-9 bg-slate-50 rounded-2xl text-xs text-slate-400 font-semibold">
                         {rawPendingApps.length === 0
                           ? "현재 진행중인 액티비티 신청 내역이 없습니다. (완료된 내역은 [완료 내역 뷰]에서 확인하실 수 있어요)"
-                          : "선택하신 필터 또는 검색어와 일치하는 신청 내역이 없습니다."}
+                          : "선택하신 중복 필터 또는 검색어와 일치하는 신청 내역이 없습니다."}
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
@@ -1973,15 +2087,39 @@ export default function AdminDashboardView({
                                   {new Date(app.createdAt).toLocaleString("ko-KR")}
                                 </td>
                                 <td className="py-3.5 px-3 font-extrabold text-[#191F28] whitespace-nowrap">
-                                  {app.clinicName}{" "}
-                                  <span className="text-xs font-bold text-[#3182F6]">
-                                    ({app.directorName}님)
-                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      toggleMultiFilter(
+                                        pendingSelectedClinics,
+                                        setPendingSelectedClinics,
+                                        app.clinicName
+                                      )
+                                    }
+                                    className="hover:underline text-left"
+                                    title="클릭 시 이 거래처 필터 토글"
+                                  >
+                                    {app.clinicName}{" "}
+                                    <span className="text-xs font-bold text-[#3182F6]">
+                                      ({app.directorName}님)
+                                    </span>
+                                  </button>
                                 </td>
                                 <td className="py-3.5 px-3 whitespace-nowrap">
-                                  <span className="bg-[#3182F6] text-white text-xs font-extrabold px-2.5 py-1 rounded-full inline-block">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      toggleMultiFilter(
+                                        pendingSelectedActs,
+                                        setPendingSelectedActs,
+                                        app.activityCode
+                                      )
+                                    }
+                                    className="bg-[#3182F6] hover:bg-[#1B64DA] text-white text-xs font-extrabold px-2.5 py-1 rounded-full inline-block transition"
+                                    title="클릭 시 이 액티비티 필터 토글"
+                                  >
                                     {app.activityCode}
-                                  </span>
+                                  </button>
                                   {app.activityTitle &&
                                     app.activityTitle !== app.activityCode && (
                                       <div className="text-[11px] text-slate-500 mt-1 font-semibold">
@@ -2082,115 +2220,152 @@ export default function AdminDashboardView({
                         <h3 className="text-base sm:text-lg font-extrabold text-[#191F28] flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-[#00C471]" />
                           <span>
-                            Merz Activity 4종 완료 내역 뷰 (검색된 {filteredCompletedApps.length}건 / 전체 완료 {rawCompletedApps.length}건)
+                            Merz Activity 4종 완료 내역 뷰 (검색·필터 {filteredCompletedApps.length}건 / 전체 완료 {rawCompletedApps.length}건)
                           </span>
                         </h3>
                         <p className="text-xs text-[#8B95A1] mt-0.5">
-                          진행완료 처리된 액티비티 내역이 보관되어 추후 사후 관리 및 히스토리 검색이 가능합니다. (상태 변경 시 다시 진행중 신청 내역 뷰로 복귀 가능)
+                          진행완료 처리된 액티비티 내역이 보관되어 항목별 중복 필터링 및 검색으로 사후 관리할 수 있습니다.
                         </p>
                       </div>
                     </div>
 
-                    {/* Row A: 완료 내역 액티비티 4종별 필터 버튼 */}
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-xs font-extrabold text-slate-500 mr-1">
-                        액티비티별 필터:
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setCompletedActTypeFilter("all")}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
-                          completedActTypeFilter === "all"
-                            ? "bg-[#00C471] text-white shadow-sm"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        전체 완료 ({rawCompletedApps.length})
-                      </button>
-                      {activityTypeOptions.map((opt) => {
-                        const count = rawCompletedApps.filter(
-                          (a) => a.activityCode === opt.code
-                        ).length;
-                        return (
-                          <button
-                            key={opt.code}
-                            type="button"
-                            onClick={() => setCompletedActTypeFilter(opt.code)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 ${
-                              completedActTypeFilter === opt.code
-                                ? "bg-[#00C471] text-white shadow-sm"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
-                          >
-                            <span>{opt.code}</span>
-                            <span className="text-[10px] opacity-80">({count})</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* 완료 내역 통합 항목별 중복 필터 & 실시간 검색 패널 */}
+                    <div className="bg-[#F0FDF4] p-4 rounded-2xl border border-emerald-200 space-y-3">
+                      {/* 1. 통합 텍스트 실시간 검색 + 필터 전체 해제 */}
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div className="relative flex-1 flex items-center">
+                          <Search className="w-4 h-4 text-[#00A862] absolute left-3.5 pointer-events-none" />
+                          <input
+                            type="text"
+                            value={completedSearchQuery}
+                            onChange={(e) => setCompletedSearchQuery(e.target.value)}
+                            placeholder="거래처명, 원장님 성함, 요청 메모, 사후관리 메모, 진행 일정 검색 (아래 항목 필터와 중복 적용)..."
+                            className="w-full text-xs font-bold bg-white border border-emerald-300 rounded-xl pl-9 pr-8 py-2.5 text-[#191F28] focus:outline-none focus:ring-2 focus:ring-[#00C471]"
+                          />
+                          {completedSearchQuery && (
+                            <button
+                              type="button"
+                              onClick={() => setCompletedSearchQuery("")}
+                              className="absolute right-2.5 text-slate-400 hover:text-slate-700"
+                              title="검색어 지우기"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
 
-                    {/* Row B: 완료 내역 필터 + 솔팅(정렬) + 텍스트 실시간 검색 */}
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 bg-[#F0FDF4] p-3.5 rounded-2xl border border-emerald-200">
-                      {/* 진행상태 표시/필터 */}
-                      <div className="md:col-span-3 flex items-center gap-2">
-                        <span className="text-xs font-extrabold text-emerald-800 shrink-0">
-                          상태필터:
-                        </span>
-                        <select
-                          value={completedStatusFilter}
-                          onChange={(e) => setCompletedStatusFilter(e.target.value)}
-                          className="w-full text-xs font-extrabold bg-white border border-emerald-300 rounded-xl px-3 py-2 text-[#191F28]"
-                        >
-                          <option value="all">
-                            ✅ 진행완료 전체 ({rawCompletedApps.length})
-                          </option>
-                          <option value="진행완료">
-                            ✅ 진행완료 ({rawCompletedApps.length})
-                          </option>
-                        </select>
-                      </div>
-
-                      {/* 솔팅(정렬) 기준 */}
-                      <div className="md:col-span-4 flex items-center gap-2">
-                        <span className="text-xs font-extrabold text-emerald-800 shrink-0 flex items-center gap-1">
-                          <ArrowUpDown className="w-3.5 h-3.5 text-[#00C471]" />
-                          <span>솔팅:</span>
-                        </span>
-                        <select
-                          value={completedSortBy}
-                          onChange={(e) =>
-                            setCompletedSortBy(
-                              e.target.value as typeof completedSortBy
-                            )
-                          }
-                          className="w-full text-xs font-extrabold bg-white border border-emerald-300 rounded-xl px-3 py-2 text-[#191F28]"
-                        >
-                          <option value="date_desc">신청/완료 최신순</option>
-                          <option value="date_asc">신청/완료 오래된순</option>
-                          <option value="activity">액티비티별 솔팅 (4종 순)</option>
-                          <option value="clinic">거래처 병원명 가나다순</option>
-                        </select>
-                      </div>
-
-                      {/* 통합 텍스트 검색 */}
-                      <div className="md:col-span-5 relative flex items-center">
-                        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
-                        <input
-                          type="text"
-                          value={completedSearchQuery}
-                          onChange={(e) => setCompletedSearchQuery(e.target.value)}
-                          placeholder="완료 내역 검색 (거래처, 원장님 성함, 메모 내용...)"
-                          className="w-full text-xs font-bold bg-white border border-emerald-300 rounded-xl pl-8 pr-8 py-2 text-[#191F28] focus:outline-none focus:ring-2 focus:ring-[#00C471]"
-                        />
-                        {completedSearchQuery && (
+                        {(completedSelectedActs.length > 0 ||
+                          completedSelectedClinics.length > 0 ||
+                          completedSearchQuery.trim() !== "") && (
                           <button
                             type="button"
-                            onClick={() => setCompletedSearchQuery("")}
-                            className="absolute right-2.5 text-slate-400 hover:text-slate-700"
-                            title="검색어 지우기"
+                            onClick={() => {
+                              setCompletedSelectedActs([]);
+                              setCompletedSelectedClinics([]);
+                              setCompletedSearchQuery("");
+                            }}
+                            className="bg-slate-800 hover:bg-slate-900 text-white text-xs font-extrabold px-3.5 py-2.5 rounded-xl flex items-center justify-center gap-1.5 shrink-0 transition"
                           >
                             <X className="w-3.5 h-3.5" />
+                            <span>선택 필터 전체 해제</span>
                           </button>
+                        )}
+                      </div>
+
+                      {/* 2. 완료 내역 항목별 다중(중복) 선택 필터 칩 (액티비티 / 거래처) */}
+                      <div className="space-y-2 pt-1">
+                        {/* 액티비티 항목 (중복 선택 가능) */}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[11px] font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg min-w-[78px] text-center">
+                            액티비티 항목
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setCompletedSelectedActs([])}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                              completedSelectedActs.length === 0
+                                ? "bg-[#00C471] text-white shadow-sm"
+                                : "bg-white text-slate-600 border border-emerald-200 hover:bg-emerald-50"
+                            }`}
+                          >
+                            전체 ({rawCompletedApps.length})
+                          </button>
+                          {activityTypeOptions.map((opt) => {
+                            const isChecked = completedSelectedActs.includes(opt.code);
+                            const count = rawCompletedApps.filter(
+                              (a) => a.activityCode === opt.code
+                            ).length;
+                            return (
+                              <button
+                                key={opt.code}
+                                type="button"
+                                onClick={() =>
+                                  toggleMultiFilter(
+                                    completedSelectedActs,
+                                    setCompletedSelectedActs,
+                                    opt.code
+                                  )
+                                }
+                                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 border ${
+                                  isChecked
+                                    ? "bg-[#00C471] text-white border-[#00C471] shadow-sm"
+                                    : "bg-white text-slate-700 border-emerald-200 hover:bg-emerald-50"
+                                }`}
+                              >
+                                {isChecked && <Check className="w-3 h-3" />}
+                                <span>{opt.code}</span>
+                                <span className="text-[10px] opacity-80">({count})</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* 거래처 항목 (중복 선택 가능) */}
+                        {completedClinicNames.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[11px] font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg min-w-[78px] text-center">
+                              거래처 항목
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setCompletedSelectedClinics([])}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
+                                completedSelectedClinics.length === 0
+                                  ? "bg-[#00C471] text-white shadow-sm"
+                                  : "bg-white text-slate-600 border border-emerald-200 hover:bg-emerald-50"
+                              }`}
+                            >
+                              전체 거래처 ({completedClinicNames.length})
+                            </button>
+                            {completedClinicNames.map((cName) => {
+                              const isChecked = completedSelectedClinics.includes(cName);
+                              const count = rawCompletedApps.filter(
+                                (a) => a.clinicName === cName
+                              ).length;
+                              return (
+                                <button
+                                  key={cName}
+                                  type="button"
+                                  onClick={() =>
+                                    toggleMultiFilter(
+                                      completedSelectedClinics,
+                                      setCompletedSelectedClinics,
+                                      cName
+                                    )
+                                  }
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition flex items-center gap-1 border ${
+                                    isChecked
+                                      ? "bg-[#00C471] text-white border-[#00C471] shadow-sm"
+                                      : "bg-white text-slate-700 border-emerald-200 hover:bg-emerald-50"
+                                  }`}
+                                >
+                                  {isChecked && <Check className="w-3 h-3" />}
+                                  <span>{cName}</span>
+                                  <span className="text-[10px] opacity-80">({count})</span>
+                                </button>
+                              );
+                            })}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -2200,7 +2375,7 @@ export default function AdminDashboardView({
                       <div className="text-center py-9 bg-slate-50 rounded-2xl text-xs text-slate-400 font-semibold">
                         {rawCompletedApps.length === 0
                           ? "아직 진행완료 처리된 액티비티 내역이 없습니다. 신청 내역에서 [진행완료]로 변경하면 이곳에 보관됩니다."
-                          : "선택하신 필터 또는 검색어와 일치하는 완료 내역이 없습니다."}
+                          : "선택하신 중복 필터 또는 검색어와 일치하는 완료 내역이 없습니다."}
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
@@ -2249,15 +2424,39 @@ export default function AdminDashboardView({
                                   )}
                                 </td>
                                 <td className="py-3.5 px-3 font-extrabold text-[#191F28] whitespace-nowrap">
-                                  {app.clinicName}{" "}
-                                  <span className="text-xs font-bold text-[#00A862]">
-                                    ({app.directorName}님)
-                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      toggleMultiFilter(
+                                        completedSelectedClinics,
+                                        setCompletedSelectedClinics,
+                                        app.clinicName
+                                      )
+                                    }
+                                    className="hover:underline text-left"
+                                    title="클릭 시 이 거래처 필터 토글"
+                                  >
+                                    {app.clinicName}{" "}
+                                    <span className="text-xs font-bold text-[#00A862]">
+                                      ({app.directorName}님)
+                                    </span>
+                                  </button>
                                 </td>
                                 <td className="py-3.5 px-3 whitespace-nowrap">
-                                  <span className="bg-[#00C471] text-white text-xs font-extrabold px-2.5 py-1 rounded-full inline-block">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      toggleMultiFilter(
+                                        completedSelectedActs,
+                                        setCompletedSelectedActs,
+                                        app.activityCode
+                                      )
+                                    }
+                                    className="bg-[#00C471] hover:bg-[#00A862] text-white text-xs font-extrabold px-2.5 py-1 rounded-full inline-block transition"
+                                    title="클릭 시 이 액티비티 필터 토글"
+                                  >
                                     {app.activityCode}
-                                  </span>
+                                  </button>
                                   {app.activityTitle &&
                                     app.activityTitle !== app.activityCode && (
                                       <div className="text-[11px] text-slate-500 mt-1 font-semibold">

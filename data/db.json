@@ -574,7 +574,7 @@
       "clinicName": "신규 거래처 의원",
       "directorName": "대표원장",
       "pin": "9995",
-      "isActive": true,
+      "isActive": false,
       "customGreeting": "원장님, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
       "heroHeadline": "신규 거래처 원장님을 위한 리바이브 핵심 브리핑",
       "heroSubtext": "히알루론산과 글리세롤을 결합한 듀얼 스킨부스터, 벨로테로 리바이브의 핵심만 모았어요.",
@@ -613,7 +613,7 @@
       ],
       "customPackages": [],
       "createdAt": "2026-11-05T12:56:57.091Z",
-      "updatedAt": "2026-11-05T12:56:57.091Z"
+      "updatedAt": "2026-11-06T10:16:23.619Z"
     },
     {
       "id": "clinic-1793883161654",
@@ -1060,27 +1060,6 @@
     }
   ],
   "accessLogs": [
-    {
-      "sessionId": "sess-cheongdam-ace-1793960171697-k4ga",
-      "clinicSlug": "cheongdam-ace",
-      "clinicName": "청담에이스의원",
-      "directorName": "김원장",
-      "deviceType": "PC",
-      "startedAt": "2026-11-06T10:16:11.996Z",
-      "lastActiveAt": "2026-11-06T10:16:11.996Z",
-      "totalDwellSeconds": 1,
-      "tabDwellSeconds": {
-        "home": 1,
-        "overview": 0,
-        "events": 0,
-        "packages": 0,
-        "calculator": 0
-      },
-      "tabSequence": [
-        "home"
-      ],
-      "clickedItems": []
-    },
     {
       "sessionId": "sess-toxnfill-gn-1793934986883-fmzc",
       "clinicSlug": "toxnfill-gn",

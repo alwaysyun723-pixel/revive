@@ -1005,7 +1005,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-06T03:16:32.130Z",
-      "lastActiveAt": "2026-11-06T03:17:02.654Z",
+      "lastActiveAt": "2026-11-06T03:17:22.721Z",
       "totalDwellSeconds": 5,
       "tabDwellSeconds": {
         "home": 5,
@@ -1022,6 +1022,11 @@
           "type": "academic_file",
           "label": "학술자료 열람: BELOVE 임상 논문 — 36주 수분·홍조·피부결 개선 결과",
           "timestamp": "2026-11-06T03:17:02.654Z"
+        },
+        {
+          "type": "event_link",
+          "label": "닥터에버스의원 강남점 이벤트 페이지 이동",
+          "timestamp": "2026-11-06T03:17:22.721Z"
         }
       ]
     },

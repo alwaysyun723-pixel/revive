@@ -937,6 +937,21 @@
   ],
   "activityApplications": [
     {
+      "id": "app-1793935235293",
+      "clinicSlug": "toxnfill-gn",
+      "clinicName": "톡스앤필 강남본점",
+      "directorName": "대표원장",
+      "activityId": "act-mex-pro",
+      "activityCode": "MEX-PRO",
+      "activityTitle": "원내 방문 제품·셀링 교육",
+      "preferredDate": "용우",
+      "contactPhone": "",
+      "requestNote": "용우",
+      "createdAt": "2026-11-06T03:20:35.293Z",
+      "status": "접수완료",
+      "kakaoNotified": false
+    },
+    {
       "id": "app-1793890429089",
       "clinicSlug": "clinic-3919",
       "clinicName": "기내의원",
@@ -1027,6 +1042,11 @@
           "type": "event_link",
           "label": "닥터에버스의원 강남점 이벤트 페이지 이동",
           "timestamp": "2026-11-06T03:17:22.721Z"
+        },
+        {
+          "type": "activity_apply",
+          "label": "MEX-PRO 신청 (용우)",
+          "timestamp": "2026-11-06T03:20:35.293Z"
         }
       ]
     },

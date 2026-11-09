@@ -1015,6 +1015,27 @@
   ],
   "accessLogs": [
     {
+      "sessionId": "sess-clinic-9258-1794190612470-0thu",
+      "clinicSlug": "clinic-9258",
+      "clinicName": "신규 거래처 의원",
+      "directorName": "대표원장",
+      "deviceType": "PC",
+      "startedAt": "2026-11-09T02:28:46.653Z",
+      "lastActiveAt": "2026-11-09T02:28:46.653Z",
+      "totalDwellSeconds": 5,
+      "tabDwellSeconds": {
+        "home": 0,
+        "overview": 0,
+        "events": 5,
+        "packages": 0,
+        "calculator": 0
+      },
+      "tabSequence": [
+        "events"
+      ],
+      "clickedItems": []
+    },
+    {
       "sessionId": "sess-clinic-9258-1794191164165-73f0",
       "clinicSlug": "clinic-9258",
       "clinicName": "신규 거래처 의원",

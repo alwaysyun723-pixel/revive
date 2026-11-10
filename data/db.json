@@ -574,7 +574,7 @@
       "clinicName": "신규 거래처 의원",
       "directorName": "대표원장",
       "pin": "9258",
-      "isActive": true,
+      "isActive": false,
       "customGreeting": "원장님, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
       "heroHeadline": "신규 거래처 원장님을 위한 리바이브 핵심 브리핑",
       "heroSubtext": "히알루론산과 글리세롤을 결합한 듀얼 스킨부스터, 벨로테로 리바이브의 핵심만 모았어요.",
@@ -613,7 +613,7 @@
       ],
       "customPackages": [],
       "createdAt": "2026-11-09T02:14:29.200Z",
-      "updatedAt": "2026-11-09T02:24:20.650Z"
+      "updatedAt": "2026-11-10T05:24:38.192Z"
     },
     {
       "id": "clinic-1793883417091",

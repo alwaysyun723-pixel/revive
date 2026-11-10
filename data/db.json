@@ -1068,7 +1068,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-10T04:55:51.773Z",
-      "lastActiveAt": "2026-11-10T04:56:47.244Z",
+      "lastActiveAt": "2026-11-10T05:17:39.017Z",
       "totalDwellSeconds": 1,
       "tabDwellSeconds": {
         "home": 1,
@@ -1085,6 +1085,11 @@
           "type": "academic_file",
           "label": "학술자료 열람: BELOVE 임상 논문 — 36주 수분·홍조·피부결 개선 결과",
           "timestamp": "2026-11-10T04:56:47.244Z"
+        },
+        {
+          "type": "academic_file",
+          "label": "학술자료 열람: BELOVE 임상 논문 — 36주 수분·홍조·피부결 개선 결과",
+          "timestamp": "2026-11-10T05:17:39.017Z"
         }
       ]
     },

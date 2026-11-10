@@ -1021,7 +1021,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-10T01:01:49.569Z",
-      "lastActiveAt": "2026-11-10T01:01:49.569Z",
+      "lastActiveAt": "2026-11-10T01:06:06.001Z",
       "totalDwellSeconds": 1,
       "tabDwellSeconds": {
         "home": 1,
@@ -1033,7 +1033,13 @@
       "tabSequence": [
         "home"
       ],
-      "clickedItems": []
+      "clickedItems": [
+        {
+          "type": "event_link",
+          "label": "리쥬엘의원 강남점 이벤트 페이지 이동",
+          "timestamp": "2026-11-10T01:06:06.001Z"
+        }
+      ]
     },
     {
       "sessionId": "sess-clinic-9258-1794271993005-np62",

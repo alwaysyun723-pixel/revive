@@ -744,7 +744,7 @@
       "clinicName": "톡스앤필 강남본점",
       "directorName": "대표원장",
       "pin": "1001",
-      "isActive": false,
+      "isActive": true,
       "customGreeting": "원장님! 톡스앤필 강남본점 상권에 맞춘 벨로테로 리바이브 이벤트 구성안과 대량 도입 시 예상 순수익 시뮬레이션을 준비했어요.",
       "heroHeadline": "톡스앤필 강남본점 원장님을 위한 리바이브 맞춤 브리핑",
       "heroSubtext": "강남역 상권 시세 비교부터 톡스앤필 전용 패키지·마진 시뮬레이션까지 한눈에 확인해보세요.",
@@ -797,7 +797,7 @@
         }
       ],
       "createdAt": "2026-11-05T09:00:00+09:00",
-      "updatedAt": "2026-11-10T05:24:34.510Z"
+      "updatedAt": "2026-11-10T05:24:54.519Z"
     },
     {
       "id": "clinic-rejuel-gn",

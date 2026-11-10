@@ -1021,7 +1021,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-10T01:12:47.168Z",
-      "lastActiveAt": "2026-11-10T01:16:29.180Z",
+      "lastActiveAt": "2026-11-10T01:16:50.794Z",
       "totalDwellSeconds": 1,
       "tabDwellSeconds": {
         "home": 1,
@@ -1038,6 +1038,11 @@
           "type": "event_link",
           "label": "포에버의원 강남점 이벤트 페이지 이동",
           "timestamp": "2026-11-10T01:16:29.180Z"
+        },
+        {
+          "type": "academic_file",
+          "label": "학술자료 열람: 부위별(1cc~4cc) 권장 시술 용량 & 결합 프로토콜",
+          "timestamp": "2026-11-10T01:16:50.794Z"
         }
       ]
     },

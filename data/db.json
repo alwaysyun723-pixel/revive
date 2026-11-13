@@ -525,7 +525,7 @@
       "id": "clinic-1794286536560",
       "slug": "clinic-3943",
       "clinicName": "톤즈의원 강남역점",
-      "directorName": "양재영",
+      "directorName": "대표원장",
       "pin": "3943",
       "isActive": true,
       "customGreeting": "원장님, 우리 병원에 딱 맞는 벨로테로 리바이브 핵심 포인트와 수익 시뮬레이션을 한눈에 보실 수 있게 정리했어요.",
@@ -566,7 +566,7 @@
       ],
       "customPackages": [],
       "createdAt": "2026-11-10T04:55:36.560Z",
-      "updatedAt": "2026-11-13T02:30:02.786Z"
+      "updatedAt": "2026-11-13T02:29:55.214Z"
     },
     {
       "id": "clinic-1794190469199",

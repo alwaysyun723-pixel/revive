@@ -1046,7 +1046,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-13T02:54:03.492Z",
-      "lastActiveAt": "2026-11-13T02:54:09.780Z",
+      "lastActiveAt": "2026-11-13T02:54:17.049Z",
       "totalDwellSeconds": 1,
       "tabDwellSeconds": {
         "home": 1,
@@ -1068,6 +1068,11 @@
           "type": "event_link",
           "label": "닥터에버스의원 강남점 이벤트 페이지 이동",
           "timestamp": "2026-11-13T02:54:09.780Z"
+        },
+        {
+          "type": "event_link",
+          "label": "톡스앤필 신논현점 이벤트 페이지 이동",
+          "timestamp": "2026-11-13T02:54:17.049Z"
         }
       ]
     },

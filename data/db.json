@@ -1046,7 +1046,7 @@
       "directorName": "대표원장",
       "deviceType": "PC",
       "startedAt": "2026-11-13T02:54:03.492Z",
-      "lastActiveAt": "2026-11-13T02:54:03.492Z",
+      "lastActiveAt": "2026-11-13T02:54:07.888Z",
       "totalDwellSeconds": 1,
       "tabDwellSeconds": {
         "home": 1,
@@ -1058,7 +1058,13 @@
       "tabSequence": [
         "home"
       ],
-      "clickedItems": []
+      "clickedItems": [
+        {
+          "type": "event_link",
+          "label": "세예의원 이벤트 페이지 이동",
+          "timestamp": "2026-11-13T02:54:07.888Z"
+        }
+      ]
     },
     {
       "sessionId": "sess-toxnfill-gn-1794361306875-pwj0",

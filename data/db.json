@@ -357,14 +357,14 @@
     },
     {
       "id": "ev-arna-ap",
-      "clinicName": "아르나의원",
+      "clinicName": "고트의원",
       "branchName": "압구정역",
       "district": "청담/압구정",
       "group": "premium",
       "isDesignated": false,
       "isAiDiscovered": true,
-      "price1cc": 385000,
-      "price2cc": 720000,
+      "price1cc": 829000,
+      "price2cc": 829000,
       "price3cc": 1020000,
       "regularPrice1cc": 550000,
       "eventTitle": "리바이브 1cc + 스킨보톡스 3cc 패키지",
@@ -373,8 +373,8 @@
         "VAT 포함",
         "압구정"
       ],
-      "comboDetails": "리바이브 1cc + 스킨보톡스 3cc 38.5만원 시그니처",
-      "eventUrl": "https://pf.kakao.com/",
+      "comboDetails": "리리리보_(리쥬란2cc+리투오1syr+벨로테로 리바이브1cc+스킨보톡스)",
+      "eventUrl": "https://unni.app/events/168384",
       "updatedAt": "2026-11-05"
     },
     {
@@ -1061,27 +1061,6 @@
     }
   ],
   "accessLogs": [
-    {
-      "sessionId": "sess-clinic-3943-1794537046505-9hee",
-      "clinicSlug": "clinic-3943",
-      "clinicName": "톤즈의원 강남역점",
-      "directorName": "대표원장",
-      "deviceType": "PC",
-      "startedAt": "2026-11-13T02:30:46.690Z",
-      "lastActiveAt": "2026-11-13T02:30:46.690Z",
-      "totalDwellSeconds": 1,
-      "tabDwellSeconds": {
-        "home": 1,
-        "overview": 0,
-        "events": 0,
-        "packages": 0,
-        "calculator": 0
-      },
-      "tabSequence": [
-        "home"
-      ],
-      "clickedItems": []
-    },
     {
       "sessionId": "sess-toxnfill-gn-1794361306875-pwj0",
       "clinicSlug": "toxnfill-gn",

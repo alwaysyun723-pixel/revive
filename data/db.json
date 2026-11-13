@@ -329,7 +329,7 @@
         "속건조 해결",
         "첫방문 혜택"
       ],
-      "comboDetails": "리바이브 시술 후 LDM 진정 관리 결합 구성",
+      "comboDetails": "리바이브 단독 시술",
       "eventUrl": "https://abijouonline.com/gangnam-main/promotion/504",
       "updatedAt": "2026-11-05"
     },
@@ -379,14 +379,14 @@
     },
     {
       "id": "ev-4ever-gn",
-      "clinicName": "포에버의원 강남점",
+      "clinicName": "세예의원",
       "branchName": "강남/신사",
       "district": "신사/논현",
       "group": "network",
       "isDesignated": false,
       "isAiDiscovered": true,
-      "price1cc": 390000,
-      "price2cc": 690000,
+      "price1cc": 600000,
+      "price2cc": 1100000,
       "price3cc": 980000,
       "regularPrice1cc": 520000,
       "eventTitle": "리바이브 + LDM 물방울 리프팅 결합 특가",
@@ -395,8 +395,8 @@
         "수분 광채",
         "직장인 추천"
       ],
-      "comboDetails": "리바이브 2cc + LDM + 모델링팩 올인원 구성",
-      "eventUrl": "https://www.4-ever.co.kr/",
+      "comboDetails": " 리바이브 1cc + 엑셀V 제네시스 + LDM 6분 + 모델링팩, 리바이브 2cc (다회 패키지)",
+      "eventUrl": "https://seyeclinic.com/ko/products/search?word=%EB%A6%AC%EB%B0%94%EC%9D%B4%EB%B8%8C",
       "updatedAt": "2026-11-05"
     }
   ],

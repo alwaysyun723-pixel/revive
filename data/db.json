@@ -225,7 +225,7 @@
   "benchmarkEvents": [
     {
       "id": "ev-toxnfill-gn",
-      "clinicName": "톡스앤필 강남본점",
+      "clinicName": "톡스앤필 신논현점",
       "branchName": "강남역 11번 출구",
       "district": "강남역/신논현",
       "group": "network",
@@ -241,8 +241,8 @@
         "2cc 다용량 할인",
         "카톡특가"
       ],
-      "comboDetails": "1cc/2cc 단독 특가 및 스킨보톡스 결합 운영",
-      "eventUrl": "https://www.toxnfill1.com/",
+      "comboDetails": "1cc/2cc 단독 특가 ",
+      "eventUrl": "https://www.toxnfill9.com/eventDetail.php?c=4286&i=29268",
       "updatedAt": "2026-11-05"
     },
     {
@@ -275,8 +275,8 @@
       "group": "network",
       "isDesignated": true,
       "isAiDiscovered": false,
-      "price1cc": 380000,
-      "price2cc": 680000,
+      "price1cc": 400000,
+      "price2cc": 600000,
       "price3cc": 960000,
       "regularPrice1cc": 500000,
       "eventTitle": "벨로테로 리바이브 NEW 런칭 특별전",
@@ -286,7 +286,7 @@
         "물광·탄력"
       ],
       "comboDetails": "스킨보톡스·레이저 토닝 결합 패키지 상시 운영",
-      "eventUrl": "https://www.drevers.com/",
+      "eventUrl": "https://gangnam.drevers.com/%EA%B2%80%EC%83%89%ED%8E%98%EC%9D%B4%EC%A7%80/?q=%EB%A6%AC%EB%B0%94%EC%9D%B4%EB%B8%8C",
       "updatedAt": "2026-11-05"
     },
     {
@@ -312,28 +312,6 @@
       "updatedAt": "2026-11-05"
     },
     {
-      "id": "ev-toxnfill-sn",
-      "clinicName": "톡스앤필 신논현점",
-      "branchName": "신논현역 3번 출구",
-      "district": "강남역/신논현",
-      "group": "network",
-      "isDesignated": false,
-      "isAiDiscovered": true,
-      "price1cc": 390000,
-      "price2cc": 660000,
-      "price3cc": null,
-      "regularPrice1cc": 590000,
-      "eventTitle": "벨로테로 리바이브 1cc / 2cc 집중 보습 특가",
-      "copyKeywords": [
-        "즉각 물광",
-        "저엠보싱",
-        "2cc 추천"
-      ],
-      "comboDetails": "1cc 39만원 / 2cc 66만원으로 2cc 업셀링 유도",
-      "eventUrl": "https://www.toxnfill9.com/",
-      "updatedAt": "2026-11-05"
-    },
-    {
       "id": "ev-abijou-gn",
       "clinicName": "아비쥬의원 강남점",
       "branchName": "서초/강남역",
@@ -352,7 +330,7 @@
         "첫방문 혜택"
       ],
       "comboDetails": "리바이브 시술 후 LDM 진정 관리 결합 구성",
-      "eventUrl": "https://www.abijouonline.com/",
+      "eventUrl": "https://abijouonline.com/gangnam-main/promotion/504",
       "updatedAt": "2026-11-05"
     },
     {
@@ -1061,38 +1039,6 @@
     }
   ],
   "accessLogs": [
-    {
-      "sessionId": "sess-clinic-3943-1794537442682-t1tl",
-      "clinicSlug": "clinic-3943",
-      "clinicName": "톤즈의원 강남역점",
-      "directorName": "대표원장",
-      "deviceType": "PC",
-      "startedAt": "2026-11-13T02:37:22.891Z",
-      "lastActiveAt": "2026-11-13T02:37:55.181Z",
-      "totalDwellSeconds": 1,
-      "tabDwellSeconds": {
-        "home": 1,
-        "overview": 0,
-        "events": 0,
-        "packages": 0,
-        "calculator": 0
-      },
-      "tabSequence": [
-        "home"
-      ],
-      "clickedItems": [
-        {
-          "type": "event_link",
-          "label": "고트의원 이벤트 페이지 이동",
-          "timestamp": "2026-11-13T02:37:25.322Z"
-        },
-        {
-          "type": "event_link",
-          "label": "테이아의원 강남본점 이벤트 페이지 이동",
-          "timestamp": "2026-11-13T02:37:55.181Z"
-        }
-      ]
-    },
     {
       "sessionId": "sess-toxnfill-gn-1794361306875-pwj0",
       "clinicSlug": "toxnfill-gn",
